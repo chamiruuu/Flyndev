@@ -1,8 +1,8 @@
 import Image from "next/image";
 import { ContactCta } from "@/components/ContactCta";
 import { FlightProgress } from "@/components/FlightProgress";
-import { Horizon } from "@/components/Horizon";
 import { LocalClock } from "@/components/LocalClock";
+import { Runway } from "@/components/Runway";
 import { StatusBoard } from "@/components/StatusBoard";
 import { site } from "@/lib/site";
 import styles from "./page.module.css";
@@ -12,23 +12,9 @@ export default function Home() {
 
   return (
     <div className={styles.page}>
-      <header className={styles.topbar}>
-        <Image
-          src="/brand/f-mark.png"
-          alt=""
-          width={160}
-          height={86}
-          className={styles.fmark}
-          priority
-        />
-        <p className={`label ${styles.place}`}>
-          <span className={styles.placeName}>{site.location.label}</span>
-          <LocalClock timeZone={site.timezone} />
-        </p>
-      </header>
+      <Runway />
 
       <main className={styles.main}>
-        <Horizon />
         <div className={styles.content}>
           <p className={`label ${styles.flight}`}>{site.flightLabel}</p>
 
@@ -57,14 +43,23 @@ export default function Home() {
         </div>
       </main>
 
-      <footer className={styles.footer}>
-        <p className={`label ${styles.copy}`}>© {year} Flyndev</p>
+      {/* Part of the same screen, not a separate bar */}
+      <footer className={styles.bottom}>
         <div className={styles.progress}>
-          <FlightProgress progress={site.progress} />
+          <FlightProgress steps={site.journey} />
         </div>
-        <a className={`label ${styles.email}`} href={`mailto:${site.email}`}>
-          {site.email}
-        </a>
+        <div className={styles.meta}>
+          <div className={styles.where}>
+            <p className={`label ${styles.place}`}>
+              <span className={styles.placeName}>{site.location.label}</span>
+              <LocalClock timeZone={site.timezone} />
+            </p>
+            <p className={`label ${styles.copy}`}>© {year} Flyndev</p>
+          </div>
+          <a className={`label ${styles.email}`} href={`mailto:${site.email}`}>
+            {site.email}
+          </a>
+        </div>
       </footer>
     </div>
   );

@@ -3,17 +3,19 @@
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import styles from "./StatusBoard.module.css";
 
-const COLS = 18;
 const CHARSET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 const CYCLE_MS = 4200; // time between status changes
 const SCRAMBLE_TICK_MS = 45; // how fast scrambling tiles change character
-const FIRST_SETTLE_MS = 300; // first tile settles after this long
-const STAGGER_MS = 70; // each following tile settles this much later
+const FIRST_SETTLE_MS = 300; // the first slot settles after this long
+const STAGGER_MS = 70; // each following slot settles this much later
 
-type Tile = { ch: string; live: boolean };
+/** One slot per character: a flap tile for letters and digits, a narrow gap for spaces. */
+type Cell = { kind: "tile"; ch: string; live: boolean } | { kind: "gap" };
 
-const pad = (s: string) => s.toUpperCase().padEnd(COLS, " ").slice(0, COLS);
-const toTiles = (s: string): Tile[] => [...pad(s)].map((ch) => ({ ch, live: false }));
+const toCells = (text: string): Cell[] =>
+  [...text.toUpperCase()].map((ch) =>
+    ch === " " ? { kind: "gap" } : { kind: "tile", ch, live: false },
+  );
 const randomChar = () => CHARSET[Math.floor(Math.random() * CHARSET.length)];
 
 const REDUCED_QUERY = "(prefers-reduced-motion: reduce)";
@@ -35,18 +37,19 @@ function usePrefersReducedMotion() {
 type Props = { statuses: readonly string[] };
 
 /**
- * Split-flap style status board. The server renders the first status as plain tiles,
- * so with JavaScript off (or reduced motion on) that is all you ever see.
+ * Departure-board status line. The number of slots always equals the number of characters
+ * in the current status. The server renders the first status, so with JavaScript off (or
+ * reduced motion on) that is all you ever see.
  */
 export function StatusBoard({ statuses }: Props) {
   const reduced = usePrefersReducedMotion();
   const [index, setIndex] = useState(0);
-  const [tiles, setTiles] = useState<Tile[]>(() => toTiles(statuses[0] ?? ""));
-  const tilesRef = useRef(tiles);
+  const [cells, setCells] = useState<Cell[]>(() => toCells(statuses[0] ?? ""));
+  const cellsRef = useRef(cells);
 
   useEffect(() => {
-    tilesRef.current = tiles;
-  }, [tiles]);
+    cellsRef.current = cells;
+  }, [cells]);
 
   useEffect(() => {
     if (reduced || statuses.length < 2) return;
@@ -56,24 +59,32 @@ export function StatusBoard({ statuses }: Props) {
 
     const flipTo = (text: string) => {
       if (flipTimer) clearInterval(flipTimer);
-      const target = pad(text);
-      const previous = tilesRef.current.map((t) => t.ch);
+      const from = cellsRef.current;
+      const to = toCells(text);
+      const slots = Math.max(from.length, to.length);
+      const lastSettle = FIRST_SETTLE_MS + (slots - 1) * STAGGER_MS;
       const start = performance.now();
 
       flipTimer = setInterval(() => {
         const elapsed = performance.now() - start;
-        let finished = true;
-        const next: Tile[] = [...target].map((ch, i) => {
-          const settleAt = FIRST_SETTLE_MS + i * STAGGER_MS;
-          // blank to blank: nothing to flip
-          if (elapsed >= settleAt || (ch === " " && previous[i] === " ")) {
-            return { ch, live: false };
+        const next: Cell[] = [];
+        for (let i = 0; i < slots; i++) {
+          const settled = elapsed >= FIRST_SETTLE_MS + i * STAGGER_MS;
+          const target = to[i]; // undefined when the new status is shorter
+          if (settled) {
+            if (target) next.push(target);
+            continue;
           }
-          finished = false;
-          return { ch: randomChar(), live: true };
-        });
-        setTiles(next);
-        if (finished && flipTimer) {
+          const wasTile = from[i]?.kind === "tile";
+          const willBeTile = target?.kind === "tile";
+          if (wasTile || willBeTile) {
+            next.push({ kind: "tile", ch: randomChar(), live: true });
+          } else if (from[i]) {
+            next.push(from[i]); // gap stays a gap until it settles
+          }
+        }
+        setCells(next);
+        if (elapsed >= lastSettle && flipTimer) {
           clearInterval(flipTimer);
           flipTimer = undefined;
         }
@@ -94,17 +105,24 @@ export function StatusBoard({ statuses }: Props) {
 
   // With reduced motion on (or before hydration) always show the first status.
   const shownIndex = reduced ? 0 : index;
-  const shownTiles = reduced ? toTiles(statuses[0] ?? "") : tiles;
+  const shownCells = reduced ? toCells(statuses[0] ?? "") : cells;
 
   return (
     <div className={styles.root}>
       <span className={`label ${styles.title}`}>Status</span>
-      <div className={styles.board} aria-hidden="true">
-        {shownTiles.map((tile, i) => (
-          <span key={i} className={`${styles.tile} ${tile.live ? styles.live : ""}`}>
-            {tile.ch === " " ? " " : tile.ch}
-          </span>
-        ))}
+      <div className={styles.housing}>
+        <span className={styles.led} aria-hidden="true" />
+        <div className={styles.board} aria-hidden="true">
+          {shownCells.map((cell, i) =>
+            cell.kind === "gap" ? (
+              <span key={i} className={styles.gap} />
+            ) : (
+              <span key={i} className={`${styles.tile} ${cell.live ? styles.live : ""}`}>
+                {cell.ch}
+              </span>
+            ),
+          )}
+        </div>
       </div>
       <span className="visually-hidden" aria-live="polite" aria-atomic="true">
         Status: {statuses[shownIndex]}

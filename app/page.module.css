@@ -1,22 +1,23 @@
+/*
+ * One screen, no scrolling. Vertical rhythm is based on viewport height so the whole
+ * composition (top bar, hero, bottom row) fits from tall phones to short laptops.
+ */
 .page {
+  --gap-l: clamp(12px, 3vh, 34px);
+  --gap-m: clamp(8px, 1.6vh, 16px);
+
   position: relative;
   display: grid;
-  grid-template-rows: auto 1fr auto;
+  grid-template-rows: 1fr auto;
   min-height: 100vh;
   min-height: 100dvh;
+  padding-inline: var(--gutter);
+  isolation: isolate;
 }
 
-.topbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-inline: var(--gutter);
-  padding-block: 28px;
-}
-
-.fmark {
-  width: 40px;
-  height: auto;
+.where {
+  display: grid;
+  gap: 2px;
 }
 
 .place {
@@ -38,22 +39,20 @@
 
 .main {
   position: relative;
+  z-index: 1;
   display: flex;
   align-items: center;
-  padding-inline: var(--gutter);
-  /* mobile: leave room under the content for the horizon band */
-  padding-block: 24px calc(28vw + 36px);
+  min-height: 0;
+  padding-block: clamp(14px, 4vh, 40px) var(--gap-m);
 }
 
 .content {
-  position: relative;
-  z-index: 1;
   width: 100%;
   max-width: var(--measure);
 }
 
 .flight {
-  margin: 0 0 24px;
+  margin: 0 0 var(--gap-m);
   font-size: 11px;
 }
 
@@ -61,11 +60,11 @@
   display: block;
   width: min(100%, 300px);
   height: auto;
-  margin-bottom: 28px;
+  margin-bottom: var(--gap-l);
 }
 
 .headline {
-  margin: 0 0 14px;
+  margin: 0 0 var(--gap-m);
   font-size: 20px;
   font-weight: 500;
   line-height: 1.35;
@@ -75,40 +74,46 @@
 }
 
 .sub {
-  margin: 0 0 32px;
+  margin: 0 0 var(--gap-l);
   font-size: 16px;
-  line-height: 1.6;
+  line-height: 1.55;
   color: var(--muted);
   text-wrap: pretty;
 }
 
 .statusWrap {
-  margin: 0 0 32px;
+  margin: 0 0 var(--gap-l);
 }
 
-.footer {
+/* bottom row: part of the page, no bar, no divider */
+.bottom {
   position: relative;
   z-index: 1;
   display: grid;
-  gap: 4px;
-  padding: 20px var(--gutter) 28px;
-  border-top: 1px solid var(--line);
-  background: var(--bg);
+  gap: 0;
+  padding-block: 0 clamp(8px, 2vh, 24px);
+}
+
+.progress {
+  order: 1;
+  padding-block: 8px 4px;
+}
+
+.meta {
+  order: 2;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  column-gap: 12px;
 }
 
 .copy {
   margin: 0;
   font-size: 11px;
-  order: 3;
-}
-
-.progress {
-  order: 1;
-  padding-block: 12px;
 }
 
 .email {
-  order: 2;
   display: inline-flex;
   align-items: center;
   min-height: 44px;
@@ -132,7 +137,33 @@
   text-decoration-color: var(--accent);
 }
 
+/* short phones */
+@media (max-height: 700px) and (max-width: 639px) {
+  .sub {
+    font-size: 15px;
+    line-height: 1.5;
+  }
+
+  .headline {
+    font-size: 19px;
+  }
+}
+
+@media (max-height: 600px) and (max-width: 639px) {
+  .flight {
+    display: none;
+  }
+
+  .wordmark {
+    width: min(100%, 240px);
+  }
+}
+
 @media (min-width: 640px) {
+  .place {
+    font-size: 12px;
+  }
+
   .placeName {
     display: inline;
   }
@@ -141,13 +172,12 @@
     content: "\00a0\00b7\00a0";
   }
 
-  .main {
-    padding-block: 24px 40px;
+  .flight {
+    font-size: 12px;
   }
 
   .wordmark {
     width: min(100%, 460px);
-    margin-bottom: 32px;
   }
 
   .headline {
@@ -156,16 +186,6 @@
 
   .sub {
     font-size: 17px;
-    margin-bottom: 36px;
-  }
-
-  .statusWrap {
-    margin-bottom: 36px;
-  }
-
-  .flight {
-    font-size: 12px;
-    margin-bottom: 28px;
   }
 }
 
@@ -177,40 +197,85 @@
 }
 
 @media (min-width: 1024px) {
-  .fmark {
-    width: 44px;
-  }
-
-  .place {
-    font-size: 12px;
-  }
-
   .wordmark {
     width: min(100%, 640px);
-    margin-bottom: 36px;
   }
 
-  .footer {
-    grid-template-columns: 1fr minmax(220px, 360px) 1fr;
-    align-items: center;
-    gap: 40px;
-    padding-block: 24px 32px;
+  .bottom {
+    grid-template-columns: 1fr minmax(320px, 460px) 1fr;
+    align-items: end;
+    gap: 32px;
   }
 
-  .copy {
-    order: 1;
-    font-size: 12px;
+  /* let the copyright and email sit in the same row as the progress bar */
+  .meta {
+    display: contents;
   }
 
   .progress {
     order: 2;
-    padding-block: 0;
+    padding-block: 0 2px;
+  }
+
+  .where {
+    order: 1;
+    padding-bottom: 12px;
+  }
+
+  .copy {
+    font-size: 11px;
   }
 
   .email {
     order: 3;
     justify-self: end;
-    font-size: 12px;
+    font-size: 11px;
+  }
+}
+
+/* short laptops and small windows */
+@media (min-width: 640px) and (max-height: 760px) {
+  .wordmark {
+    width: min(100%, 520px);
+  }
+
+  .headline {
+    font-size: 20px;
+  }
+
+  .sub {
+    font-size: 16px;
+  }
+}
+
+@media (min-width: 640px) and (max-height: 620px) {
+  .wordmark {
+    width: min(100%, 420px);
+  }
+
+  .flight {
+    display: none;
+  }
+}
+
+/* landscape phones and other very short screens: keep the essentials on one screen */
+@media (max-height: 480px) {
+  .flight,
+  .sub {
+    display: none;
+  }
+
+  .wordmark {
+    width: min(100%, 300px);
+    margin-bottom: 10px;
+  }
+
+  .headline {
+    margin-bottom: 10px;
+  }
+
+  .statusWrap {
+    margin-bottom: 10px;
   }
 }
 

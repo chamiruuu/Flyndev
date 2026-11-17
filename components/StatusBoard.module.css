@@ -1,32 +1,59 @@
 .root {
+  --tw: clamp(11px, calc((100vw - 2 * var(--gutter) - 48px) / 17.6), 24px);
+  --th: calc(var(--tw) * 1.5);
+
   display: grid;
-  gap: 10px;
-  width: 100%;
+  gap: 8px;
+  justify-items: start;
 }
 
 .title {
   font-size: 11px;
 }
 
+/* the terminal row: status light + one flap tile per character */
+.housing {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 100%;
+  padding: 5px 8px;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  background: #0a0a0a;
+}
+
+.led {
+  flex: none;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 8px 1px color-mix(in srgb, var(--accent) 70%, transparent);
+  animation: pulse 2.4s ease-in-out infinite;
+}
+
 .board {
-  display: grid;
-  grid-template-columns: repeat(18, minmax(0, 1fr));
+  display: flex;
+  align-items: center;
   gap: 2px;
-  width: 100%;
-  max-width: 560px;
+  height: var(--th);
 }
 
 .tile {
   position: relative;
   display: grid;
   place-items: center;
-  aspect-ratio: 5 / 7;
+  flex: none;
+  width: var(--tw);
+  height: var(--th);
   border-radius: 3px;
-  background: var(--tile);
+  /* upper and lower flap halves */
+  background: linear-gradient(180deg, #1a1a1a 0 49.5%, #0e0e0e 50.5% 100%);
   color: var(--ink);
   font-family: var(--font-label);
   font-weight: 500;
-  font-size: clamp(10px, 3.3vw, 12px);
+  font-size: calc(var(--tw) * 0.74);
   line-height: 1;
   user-select: none;
 }
@@ -44,22 +71,49 @@
   color: var(--accent);
 }
 
+.gap {
+  flex: none;
+  width: calc(var(--tw) * 0.55);
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+
 @media (min-width: 640px) {
   .root {
-    grid-template-columns: auto minmax(0, 1fr);
+    --tw: 24px;
+
+    grid-template-columns: auto auto;
     align-items: center;
-    gap: 18px;
+    justify-content: start;
+    gap: 16px;
   }
 
   .title {
     font-size: 12px;
   }
 
-  .board {
-    gap: 3px;
+  .housing {
+    gap: 10px;
+    padding: 7px 12px;
   }
+}
 
-  .tile {
-    font-size: 17px;
+@media (max-height: 640px) and (min-width: 640px) {
+  .root {
+    --tw: 20px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .led {
+    animation: none;
   }
 }

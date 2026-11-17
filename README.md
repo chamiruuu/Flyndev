@@ -3,7 +3,8 @@
 The coming-soon site for **flyndev.com**, and the base of the full Flyndev site later.
 One screen: a dark sky before take-off, a thin orange horizon, a split-flap status board.
 
-- **Stack:** Next.js (App Router) + TypeScript, plain CSS Modules, no UI or animation libraries.
+- **Stack:** Next.js (App Router) + TypeScript, plain CSS Modules, Three.js for the hero scene.
+  No UI or animation libraries beyond that.
 - **Output:** fully static (`output: "export"`), so it deploys to Vercel or Cloudflare Pages unchanged.
 - **Node:** 20.9 or newer (`.nvmrc` pins 22).
 
@@ -28,14 +29,14 @@ To preview the production build: `npm run build && npx serve out`.
 
 Almost everything you will want to change is in **`lib/site.ts`**:
 
-| Field         | Controls                                                      |
-| ------------- | ------------------------------------------------------------- |
-| `email`       | The "Start a project" button, footer link and JSON-LD         |
-| `instagram`   | Handle for the "Follow the build" link and JSON-LD `sameAs`   |
-| `progress`    | Where the plane sits on the IDEA ── LAUNCH bar (0 to 1)       |
-| `statuses`    | Status board messages (max 18 characters each, shown in caps) |
-| `timezone`    | Timezone for the live clock                                   |
-| `flightLabel` | The small mono label above the wordmark                       |
+| Field         | Controls                                                         |
+| ------------- | ---------------------------------------------------------------- |
+| `email`       | The "Start a project" button, footer link and JSON-LD            |
+| `instagram`   | Handle for the "Follow the build" link and JSON-LD `sameAs`      |
+| `journey`     | The animated bottom-bar steps (IDEA → LAUNCH) and their captions |
+| `statuses`    | Status board messages (max 18 characters each, shown in caps)    |
+| `timezone`    | Timezone for the live clock                                      |
+| `flightLabel` | The small mono label above the wordmark                          |
 
 Page title and description (and the JSON-LD organisation) live in `lib/seo.ts`.
 Brand colours are the tokens at the top of `app/globals.css`.
@@ -78,10 +79,13 @@ dependency) and needs network access for the Google Font used in the share image
 2. Vercel shows the records it wants. Use the exact values it displays. At the time of
    writing they are:
 
-   | Type  | Host  | Value                  |
-   | ----- | ----- | ---------------------- |
-   | A     | `@`   | `76.76.21.21`          |
-   | CNAME | `www` | `cname.vercel-dns.com` |
+   | Type  | Host  | Value                                 |
+   | ----- | ----- | ------------------------------------- |
+   | A     | `@`   | `216.198.79.1`                        |
+   | CNAME | `www` | `62d4a60d997c1ca3.vercel-dns-017.com` |
+
+   (The older `76.76.21.21` and `cname.vercel-dns.com` still work.) Vercel shows the
+   values for your own project under **Settings → Domains**, so copy those if they differ.
 
 3. In Porkbun: **Domain Management → DNS**. First delete any default parking records that
    conflict (typically an ALIAS on the root and a CNAME on `*` pointing at
@@ -150,17 +154,31 @@ nameservers point. If you move nameservers to Cloudflare, recreate them there.
 
 ```
 app/            layout, page, 404, icons, OG image, robots.ts, sitemap.ts
-components/     Horizon, StatusBoard, LocalClock, FlightProgress, ContactCta
-lib/            site.ts (content/config), seo.ts (metadata + JSON-LD)
+components/     Runway, StatusBoard, LocalClock, FlightProgress, ContactCta
+lib/            site.ts (content/config), seo.ts (metadata + JSON-LD),
+                runway.ts (the Three.js scene, loaded lazily)
 public/brand/   logo files used on the page
 assets/         full-size logo originals for icon generation
 scripts/        dev-only brand asset generator
 ```
 
+## The hero scene
+
+`lib/runway.ts` is a small Three.js "night runway": edge lights stream toward the viewer
+under a faint orange horizon glow, and every 15 seconds a bright point takes off down the
+runway and climbs. It is loaded after the page has painted (`components/Runway.tsx`), so it
+never blocks first render. Until it loads, without WebGL, with data-saver on, on very
+low-end devices, or without JavaScript, a plain CSS glow stands in. With reduced motion it
+renders one still frame. Tweak the look with the constants at the top of the file
+(`SPEED`, `LIGHT_SPACING`, `FLIGHT_PERIOD`, camera and runway sizes).
+
 ## Known trade-offs
 
-- The Next.js and React runtime ships about 177 KB of gzipped JavaScript. Lighthouse
-  mobile still scores 100 across the board, but the original "under 30 KB" target is not
-  reachable with Next.js.
+- The Next.js and React runtime ships about 186 KB of gzipped JavaScript up front, plus
+  about 131 KB for Three.js, loaded lazily after the page is shown. The original "under
+  30 KB" target is not reachable with Next.js and Three.js.
+- In an emulated Lighthouse run with software-rendered graphics, Performance drops to roughly
+  70 to 87 while the 3D scene runs (99 without WebGL). Accessibility, Best Practices and SEO
+  stay at 100. Check the live site on real hardware.
 - The logo files are PNGs cut from the brand board, so they are slightly soft at large
   sizes until the real SVG is added.

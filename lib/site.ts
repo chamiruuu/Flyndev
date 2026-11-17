@@ -8,7 +8,15 @@ export const site = {
   url: "https://flyndev.com",
   email: "hello.flyndev@gmail.com", // not final, swap for a flyndev.com address when ready
   instagram: "flyndev.hq",
-  progress: 0.68, // position of the plane on the IDEA ── LAUNCH bar (0 to 1)
+  // The animated bottom-bar story: a client's idea, flown through to a launched product.
+  // Add, remove or reword steps here (2 to 6 steps work well).
+  journey: [
+    { label: "Idea", note: "You bring the idea" },
+    { label: "Plan", note: "We chart the route" },
+    { label: "Design", note: "We shape it" },
+    { label: "Build", note: "We build it" },
+    { label: "Launch", note: "You take off with a great product" },
+  ],
   timezone: "Asia/Colombo",
   location: { locality: "Colombo", country: "LK", label: "COLOMBO, LK" },
   flightLabel: "FLIGHT FD-001 — FLYNDEV.COM",

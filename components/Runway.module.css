@@ -13,7 +13,7 @@
   inset: 0;
   background:
     radial-gradient(
-      ellipse 30% 20% at 74% 56%,
+      ellipse 34% 14% at 50% 85%,
       color-mix(in srgb, var(--accent) 22%, transparent),
       transparent 70%
     ),
@@ -23,7 +23,7 @@
         color-mix(in srgb, var(--accent) 45%, transparent) 68%,
         transparent 96%
       )
-      74% 56% / 100% 1px no-repeat;
+      50% 85% / 100% 1px no-repeat;
   opacity: 1;
   transition: opacity 1.6s ease;
 }

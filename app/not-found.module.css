@@ -9,12 +9,15 @@
 .content {
   width: 100%;
   max-width: var(--measure);
+  margin-inline: auto;
+  text-align: center;
 }
 
 .wordmark {
   display: block;
   width: min(100%, 260px);
   height: auto;
+  margin-inline: auto;
   margin-bottom: 36px;
 }
 

@@ -4,7 +4,7 @@
 
   display: grid;
   gap: 8px;
-  justify-items: start;
+  justify-items: center;
 }
 
 .title {
@@ -90,10 +90,7 @@
   .root {
     --tw: 24px;
 
-    grid-template-columns: auto auto;
-    align-items: center;
-    justify-content: start;
-    gap: 16px;
+    gap: 10px;
   }
 
   .title {

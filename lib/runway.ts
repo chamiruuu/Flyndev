@@ -37,7 +37,8 @@ const BAR_SPACING = 36;
 
 /** Where the vanishing point sits on screen (fractions of width/height from top-left). */
 function vanishingPoint(width: number, height: number) {
-  return width / height < 0.9 ? { x: 0.5, y: 0.86 } : { x: 0.74, y: 0.56 };
+  // bottom centre, under the (centered) content
+  return { x: 0.5, y: width / height < 0.9 ? 0.86 : 0.85 };
 }
 
 // ---------- shared GLSL ----------
@@ -101,6 +102,7 @@ function pointsMaterial(
       ${SCROLL}
       uniform float uFocal;
       uniform float uPx;
+      uniform float uWidth;
       uniform float uSize;
       uniform float uStrength;
       attribute float aPhase;
@@ -108,7 +110,7 @@ function pointsMaterial(
       ${FADE}
       void main() {
         float d = aheadOf(aPhase);
-        vec3 p = vec3(position.x, position.y, -d);
+        vec3 p = vec3(position.x * uWidth, position.y, -d);
         vec4 clip = projectionMatrix * viewMatrix * vec4(p, 1.0);
         gl_Position = clip;
         float px = uSize * uFocal / d;
@@ -178,6 +180,7 @@ export async function createRunway(
     uLen: { value: LENGTH },
     uFocal: { value: 800 },
     uPx: { value: 1 },
+    uWidth: { value: 1 },
   };
 
   // ----- horizon glow (full-screen quad) -----
@@ -256,11 +259,13 @@ export async function createRunway(
         uniforms: lineUniforms(strength, ACCENT),
         vertexShader: /* glsl */ `
           uniform float uLen;
+          uniform float uWidth;
           varying float vAlpha;
           ${FADE}
           void main() {
             float d = max(-position.z, 0.0);
-            vec4 clip = projectionMatrix * viewMatrix * vec4(position, 1.0);
+            vec3 pos = vec3(position.x * uWidth, position.y, position.z);
+            vec4 clip = projectionMatrix * viewMatrix * vec4(pos, 1.0);
             gl_Position = clip;
             vAlpha = (1.0 - smoothstep(0.1 * uLen, uLen, d)) * bottomFade(clip);
           }
@@ -301,12 +306,13 @@ export async function createRunway(
       uniforms: lineUniforms(0.09, CREAM),
       vertexShader: /* glsl */ `
         ${SCROLL}
+        uniform float uWidth;
         attribute float aPhase;
         varying float vAlpha;
         ${FADE}
         void main() {
           float d = aheadOf(aPhase);
-          vec4 clip = projectionMatrix * viewMatrix * vec4(position.x, 0.0, -d, 1.0);
+          vec4 clip = projectionMatrix * viewMatrix * vec4(position.x * uWidth, 0.0, -d, 1.0);
           gl_Position = clip;
           vAlpha = distanceFade(d) * bottomFade(clip);
         }
@@ -361,6 +367,7 @@ export async function createRunway(
     // focal length in drawing-buffer pixels, for perspective point sizes
     shared.uFocal.value = (h * dpr) / (2 * Math.tan((FOV * Math.PI) / 360));
     shared.uPx.value = dpr;
+    shared.uWidth.value = portrait ? 1 : 1.9; // a wider runway on landscape screens
   };
   resize();
   const observer = new ResizeObserver(resize);

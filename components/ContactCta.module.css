@@ -3,6 +3,8 @@
   flex-direction: column;
   align-items: stretch;
   gap: 8px;
+  max-width: 420px;
+  margin-inline: auto;
 }
 
 .button {
@@ -44,7 +46,7 @@
   min-height: 44px;
   display: flex;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: center;
   gap: 0.35em;
   color: var(--muted);
   font-size: 15px;
@@ -70,15 +72,11 @@
   text-decoration-color: var(--accent);
 }
 
+/* wider screens: the button keeps its natural width, centered, with the handle under it */
 @media (min-width: 640px) {
   .cta {
-    flex-direction: row;
     align-items: center;
-    gap: 28px;
-  }
-
-  .note {
-    justify-content: flex-start;
+    max-width: none;
   }
 }
 

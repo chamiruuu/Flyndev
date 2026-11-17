@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { ContactCta } from "@/components/ContactCta";
-import { FlightProgress } from "@/components/FlightProgress";
+import { Contrail } from "@/components/Contrail";
+import { Intro } from "@/components/Intro";
 import { LocalClock } from "@/components/LocalClock";
 import { Runway } from "@/components/Runway";
 import { StatusBoard } from "@/components/StatusBoard";
@@ -11,56 +12,54 @@ export default function Home() {
   const year = new Date().getFullYear();
 
   return (
-    <div className={styles.page}>
-      <Runway />
+    <>
+      <Intro steps={site.journey} />
+      <Contrail />
+      <div className={styles.page} data-app>
+        <Runway />
 
-      <main className={styles.main}>
-        <div className={styles.content}>
-          <p className={`label ${styles.flight}`}>{site.flightLabel}</p>
+        <main className={styles.main}>
+          <div className={styles.content}>
+            <p className={`label ${styles.flight}`}>{site.flightLabel}</p>
 
-          <Image
-            src="/brand/wordmark.png"
-            alt="Flyndev"
-            width={1280}
-            height={151}
-            className={styles.wordmark}
-            priority
-          />
+            <Image
+              src="/brand/wordmark.png"
+              alt="Flyndev"
+              width={1280}
+              height={151}
+              className={styles.wordmark}
+              priority
+            />
 
-          <h1 className={styles.headline}>
-            Websites, systems and automation for founders ready to take off.
-          </h1>
-          <p className={styles.sub}>
-            Our full site is still in the hangar — but we&rsquo;re already taking on
-            projects.
-          </p>
-
-          <div className={styles.statusWrap}>
-            <StatusBoard statuses={site.statuses} />
-          </div>
-
-          <ContactCta />
-        </div>
-      </main>
-
-      {/* Part of the same screen, not a separate bar */}
-      <footer className={styles.bottom}>
-        <div className={styles.progress}>
-          <FlightProgress steps={site.journey} />
-        </div>
-        <div className={styles.meta}>
-          <div className={styles.where}>
-            <p className={`label ${styles.place}`}>
-              <span className={styles.placeName}>{site.location.label}</span>
-              <LocalClock timeZone={site.timezone} />
+            <h1 className={styles.headline}>
+              Websites, systems and automation for founders ready to take off.
+            </h1>
+            <p className={styles.sub}>
+              Our full site is still in the hangar — but we&rsquo;re already taking on
+              projects.
             </p>
-            <p className={`label ${styles.copy}`}>© {year} Flyndev</p>
+
+            <div className={styles.statusWrap}>
+              <StatusBoard statuses={site.statuses} />
+            </div>
+
+            <ContactCta />
+
+            <div className={styles.meta}>
+              <p className={`label ${styles.place}`}>
+                <span className={styles.placeName}>{site.location.label}</span>
+                <LocalClock timeZone={site.timezone} />
+              </p>
+              <p className={styles.fine}>
+                <a className={`label ${styles.email}`} href={`mailto:${site.email}`}>
+                  {site.email}
+                </a>
+                <span className={`label ${styles.copy}`}>© {year} Flyndev</span>
+              </p>
+            </div>
           </div>
-          <a className={`label ${styles.email}`} href={`mailto:${site.email}`}>
-            {site.email}
-          </a>
-        </div>
-      </footer>
-    </div>
+        </main>
+      </div>
+    </>
   );
 }

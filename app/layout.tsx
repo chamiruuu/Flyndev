@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
+import { INTRO_SEEN_KEY } from "@/lib/intro";
 import { organizationJsonLd, seo } from "@/lib/seo";
 import { site } from "@/lib/site";
 import "./globals.css";
@@ -49,6 +50,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className={`${inter.variable} ${jetbrainsMono.variable}`}>
       <body>
+        {/* Runs before first paint: skip the welcome animation if this visit already saw it */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `try{if(sessionStorage.getItem(${JSON.stringify(INTRO_SEEN_KEY)}))document.documentElement.dataset.intro="seen"}catch(e){}`,
+          }}
+        />
         {children}
         <script
           type="application/ld+json"

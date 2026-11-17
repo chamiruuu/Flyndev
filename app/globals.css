@@ -80,3 +80,8 @@ body {
   white-space: nowrap;
   border: 0;
 }
+
+/* The welcome animation is not replayed within the same visit (set by a script in the layout) */
+html[data-intro="seen"] .intro-root {
+  display: none !important;
+}

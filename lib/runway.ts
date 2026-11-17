@@ -2,7 +2,7 @@
  * "Night runway": the Flyndev hero scene, built with Three.js.
  *
  * Runway edge lights stream toward the camera under a faint orange horizon glow.
- * Every so often a bright point takes off down the runway and climbs into the sky.
+ * On devices with a mouse, the view banks very slightly with the cursor, like a cockpit.
  *
  * This module is loaded lazily (dynamic import) after the page has painted, so Three.js
  * never blocks first render. It returns a dispose function, or null if WebGL is missing.
@@ -34,13 +34,10 @@ const LENGTH = 320; // how far ahead the scene extends
 const SPEED = 15; // world units per second
 const LIGHT_SPACING = 4.5;
 const BAR_SPACING = 36;
-const FLIGHT_PERIOD = 15; // seconds between take-offs
-const FLIGHT_START = 3.2; // seconds into each period when the take-off begins
-const FLIGHT_DURATION = 7.5;
 
 /** Where the vanishing point sits on screen (fractions of width/height from top-left). */
 function vanishingPoint(width: number, height: number) {
-  return width / height < 0.9 ? { x: 0.5, y: 0.725 } : { x: 0.74, y: 0.56 };
+  return width / height < 0.9 ? { x: 0.5, y: 0.86 } : { x: 0.74, y: 0.56 };
 }
 
 // ---------- shared GLSL ----------
@@ -328,71 +325,6 @@ export async function createRunway(
     scene.add(p);
   });
 
-  // ----- take-off: a bright point accelerates down the runway, then climbs -----
-  const TRAIL = 110;
-  const trailIdx = new Float32Array(TRAIL);
-  for (let i = 0; i < TRAIL; i++) trailIdx[i] = i;
-  const trailGeo = new BufferGeometry();
-  trailGeo.setAttribute("position", new BufferAttribute(new Float32Array(TRAIL * 3), 3));
-  trailGeo.setAttribute("aIdx", new BufferAttribute(trailIdx, 1));
-  const flightUniforms = { uT: { value: 0 } };
-  const flight = new Points(
-    trailGeo,
-    new ShaderMaterial({
-      transparent: true,
-      depthWrite: false,
-      depthTest: false,
-      blending: AdditiveBlending,
-      uniforms: {
-        ...shared,
-        ...flightUniforms,
-        uAccent: { value: ACCENT },
-        uCream: { value: CREAM },
-      },
-      vertexShader: /* glsl */ `
-        uniform float uT;
-        uniform float uFocal;
-        attribute float aIdx;
-        varying float vAlpha;
-        varying float vHead;
-        const float N = ${TRAIL.toFixed(1)};
-        vec3 pathAt(float s) {
-          float run = pow(s, 1.9);
-          float climb = pow(max(s - 0.42, 0.0) / 0.58, 2.1);
-          return vec3(1.2 * s + 70.0 * climb, 0.35 + 150.0 * climb, -(30.0 + 310.0 * run));
-        }
-        float bottomFade2(vec4 clip) { return smoothstep(-0.97, -0.72, clip.y / clip.w); }
-        void main() {
-          float s = max(uT - aIdx * 0.0042, 0.0);
-          vec3 p = pathAt(s);
-          vec4 clip = projectionMatrix * viewMatrix * vec4(p, 1.0);
-          gl_Position = clip;
-          float d = max(-p.z, 1.0);
-          float head = 1.0 - aIdx / N;
-          vHead = head;
-          gl_PointSize = clamp((0.18 + 0.5 * head * head) * uFocal / d, 1.5, 5.5);
-          float vis = smoothstep(0.0, 0.06, uT) * (1.0 - smoothstep(0.86, 1.0, uT));
-          vAlpha = pow(head, 2.4) * vis * bottomFade2(clip);
-        }
-      `,
-      fragmentShader: /* glsl */ `
-        uniform vec3 uAccent;
-        uniform vec3 uCream;
-        varying float vAlpha;
-        varying float vHead;
-        void main() {
-          float r = length(gl_PointCoord - 0.5);
-          float a = smoothstep(0.5, 0.0, r) * vAlpha;
-          if (a < 0.003) discard;
-          vec3 col = mix(uAccent, uCream, smoothstep(0.82, 1.0, vHead));
-          gl_FragColor = vec4(col, a);
-        }
-      `,
-    }),
-  );
-  flight.frustumCulled = false;
-  if (!opts.reducedMotion) scene.add(flight);
-
   await yieldToMain();
 
   // ----- sizing -----
@@ -417,6 +349,17 @@ export async function createRunway(
   const observer = new ResizeObserver(resize);
   observer.observe(canvas);
 
+  // ----- cockpit tilt (mouse devices only, never with reduced motion) -----
+  const tilt = { tx: 0, ty: 0, cx: 0, cy: 0 };
+  const canTilt =
+    !opts.reducedMotion &&
+    window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+  const onPointerMove = (e: PointerEvent) => {
+    tilt.tx = (e.clientX / window.innerWidth) * 2 - 1;
+    tilt.ty = (e.clientY / window.innerHeight) * 2 - 1;
+  };
+  if (canTilt) window.addEventListener("pointermove", onPointerMove, { passive: true });
+
   // ----- loop -----
   let raf = 0;
   let disposed = false;
@@ -426,11 +369,18 @@ export async function createRunway(
     const t = (now - start) / 1000;
     shared.uOffset.value = (t * SPEED) % (LENGTH * 4);
     glowUniforms.uTime.value = t;
-    const cycle = t % FLIGHT_PERIOD;
-    flightUniforms.uT.value = Math.min(
-      Math.max((cycle - FLIGHT_START) / FLIGHT_DURATION, 0),
-      1,
-    );
+    if (canTilt) {
+      // ease toward the cursor so the motion is soft, then bank a few degrees at most
+      tilt.cx += (tilt.tx - tilt.cx) * 0.045;
+      tilt.cy += (tilt.ty - tilt.cy) * 0.045;
+      camera.rotation.set(-tilt.cy * 0.014, -tilt.cx * 0.026, -tilt.cx * 0.02);
+      const vp = vanishingPoint(canvas.clientWidth, canvas.clientHeight);
+      glowUniforms.uVP.value.set(vp.x - tilt.cx * 0.014, 1 - vp.y + tilt.cy * 0.01);
+      glowUniforms.uQuadCenter.value.set(
+        (vp.x - tilt.cx * 0.014) * 2 - 1,
+        1 - (vp.y - tilt.cy * 0.01) * 2,
+      );
+    }
     renderer.render(scene, camera);
     raf = requestAnimationFrame(frame);
   };
@@ -446,6 +396,7 @@ export async function createRunway(
   return () => {
     disposed = true;
     cancelAnimationFrame(raf);
+    window.removeEventListener("pointermove", onPointerMove);
     observer.disconnect();
     scene.traverse((o) => {
       const obj = o as Mesh;

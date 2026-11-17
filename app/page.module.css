@@ -1,40 +1,18 @@
 /*
- * One screen, no scrolling. Vertical rhythm is based on viewport height so the whole
- * composition (top bar, hero, bottom row) fits from tall phones to short laptops.
+ * One screen, no scrolling, no footer. Vertical rhythm is based on viewport height so the
+ * whole composition fits from tall phones to short laptops.
  */
 .page {
-  --gap-l: clamp(12px, 3vh, 34px);
-  --gap-m: clamp(8px, 1.6vh, 16px);
+  --gap-l: clamp(10px, 2.6vh, 32px);
+  --gap-m: clamp(8px, 1.5vh, 16px);
 
   position: relative;
   display: grid;
-  grid-template-rows: 1fr auto;
+  grid-template-rows: 1fr;
   min-height: 100vh;
   min-height: 100dvh;
   padding-inline: var(--gutter);
   isolation: isolate;
-}
-
-.where {
-  display: grid;
-  gap: 2px;
-}
-
-.place {
-  display: flex;
-  margin: 0;
-  font-size: 11px;
-}
-
-/* mobile shows the time only; the place name returns from 640px up */
-.placeName {
-  display: none;
-}
-
-@media (scripting: none) {
-  .placeName {
-    display: inline;
-  }
 }
 
 .main {
@@ -43,7 +21,7 @@
   display: flex;
   align-items: center;
   min-height: 0;
-  padding-block: clamp(14px, 4vh, 40px) var(--gap-m);
+  padding-block: clamp(16px, 4vh, 48px);
 }
 
 .content {
@@ -85,31 +63,39 @@
   margin: 0 0 var(--gap-l);
 }
 
-/* bottom row: part of the page, no bar, no divider */
-.bottom {
-  position: relative;
-  z-index: 1;
+/* local time, email and copyright: small, tucked under the call to action */
+.meta {
   display: grid;
   gap: 0;
-  padding-block: 0 clamp(8px, 2vh, 24px);
+  margin-top: clamp(4px, 1.6vh, 20px);
 }
 
-.progress {
-  order: 1;
-  padding-block: 8px 4px;
+.place {
+  display: flex;
+  margin: 0;
+  font-size: 11px;
 }
 
-.meta {
-  order: 2;
+/* mobile shows the time only; the place name returns from 640px up */
+.placeName {
+  display: none;
+}
+
+@media (scripting: none) {
+  .placeName {
+    display: inline;
+  }
+}
+
+.fine {
   display: flex;
   flex-wrap: wrap;
-  align-items: flex-end;
-  justify-content: space-between;
-  column-gap: 12px;
+  align-items: center;
+  column-gap: 14px;
+  margin: 0;
 }
 
 .copy {
-  margin: 0;
   font-size: 11px;
 }
 
@@ -149,7 +135,7 @@
   }
 }
 
-@media (max-height: 600px) and (max-width: 639px) {
+@media (max-height: 640px) and (max-width: 639px) {
   .flight {
     display: none;
   }
@@ -201,34 +187,8 @@
     width: min(100%, 640px);
   }
 
-  .bottom {
-    grid-template-columns: 1fr minmax(320px, 460px) 1fr;
-    align-items: end;
-    gap: 32px;
-  }
-
-  /* let the copyright and email sit in the same row as the progress bar */
-  .meta {
-    display: contents;
-  }
-
-  .progress {
-    order: 2;
-    padding-block: 0 2px;
-  }
-
-  .where {
-    order: 1;
-    padding-bottom: 12px;
-  }
-
-  .copy {
-    font-size: 11px;
-  }
-
+  .copy,
   .email {
-    order: 3;
-    justify-self: end;
     font-size: 11px;
   }
 }
@@ -248,7 +208,7 @@
   }
 }
 
-@media (min-width: 640px) and (max-height: 620px) {
+@media (min-width: 640px) and (max-height: 640px) {
   .wordmark {
     width: min(100%, 420px);
   }
@@ -267,15 +227,19 @@
 
   .wordmark {
     width: min(100%, 300px);
-    margin-bottom: 10px;
+    margin-bottom: 8px;
   }
 
   .headline {
-    margin-bottom: 10px;
+    margin-bottom: 8px;
   }
 
   .statusWrap {
-    margin-bottom: 10px;
+    margin-bottom: 8px;
+  }
+
+  .meta {
+    margin-top: 0;
   }
 }
 

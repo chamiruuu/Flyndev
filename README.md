@@ -31,7 +31,7 @@ Almost everything you will want to change is in **`lib/site.ts`**:
 
 | Field         | Controls                                                         |
 | ------------- | ---------------------------------------------------------------- |
-| `email`       | The "Start a project" button, footer link and JSON-LD            |
+| `email`       | The "Start a project" button, the email under it, and JSON-LD    |
 | `instagram`   | Handle for the "Follow the build" link and JSON-LD `sameAs`      |
 | `journey`     | The animated bottom-bar steps (IDEA → LAUNCH) and their captions |
 | `statuses`    | Status board messages (max 18 characters each, shown in caps)    |
@@ -41,7 +41,7 @@ Almost everything you will want to change is in **`lib/site.ts`**:
 Page title and description (and the JSON-LD organisation) live in `lib/seo.ts`.
 Brand colours are the tokens at the top of `app/globals.css`.
 
-The footer year is set when the site is built, so it updates on the next deploy.
+The year in the small print is set when the site is built, so it updates on the next deploy.
 
 ## Brand assets
 
@@ -154,7 +154,7 @@ nameservers point. If you move nameservers to Cloudflare, recreate them there.
 
 ```
 app/            layout, page, 404, icons, OG image, robots.ts, sitemap.ts
-components/     Runway, StatusBoard, LocalClock, FlightProgress, ContactCta
+components/     Intro, Runway, Contrail, StatusBoard, LocalClock, ContactCta
 lib/            site.ts (content/config), seo.ts (metadata + JSON-LD),
                 runway.ts (the Three.js scene, loaded lazily)
 public/brand/   logo files used on the page
@@ -162,15 +162,33 @@ assets/         full-size logo originals for icon generation
 scripts/        dev-only brand asset generator
 ```
 
+## The welcome animation
+
+First visit of a session: a full-screen, 9-second motion piece plays before the site. It tells
+the client journey in five scenes (Idea, Plan, Design, Build, Launch), then a curtain opens on
+the page. It lives in `components/Intro.tsx` and `Intro.module.css` (pure CSS, no libraries).
+
+- Visitors can skip it with the **Skip intro** button or **Esc**.
+- It plays once per visit (tab session), never with reduced motion, and never without JS.
+- Step names and captions come from `journey` in `lib/site.ts`. The scene artwork and timings
+  are fixed at five steps; scene start times and lengths are the `START` and `LEN` constants
+  in `Intro.tsx`, which must match the timings in `Intro.module.css`.
+- The 3D scene waits until the animation has finished before it starts.
+
+## Mouse effects
+
+On devices with a mouse (not touch, not reduced motion): a tiny paper plane trails the cursor
+leaving a faint vapour trail (`components/Contrail.tsx`), and the runway scene banks slightly
+with the cursor, like a cockpit (`lib/runway.ts`).
+
 ## The hero scene
 
 `lib/runway.ts` is a small Three.js "night runway": edge lights stream toward the viewer
-under a faint orange horizon glow, and every 15 seconds a bright point takes off down the
-runway and climbs. It is loaded after the page has painted (`components/Runway.tsx`), so it
+under a faint orange horizon glow. It is loaded after the page has painted (`components/Runway.tsx`), so it
 never blocks first render. Until it loads, without WebGL, with data-saver on, on very
 low-end devices, or without JavaScript, a plain CSS glow stands in. With reduced motion it
 renders one still frame. Tweak the look with the constants at the top of the file
-(`SPEED`, `LIGHT_SPACING`, `FLIGHT_PERIOD`, camera and runway sizes).
+(`SPEED`, `LIGHT_SPACING`, camera and runway sizes).
 
 ## Known trade-offs
 

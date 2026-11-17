@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { INTRO_DONE_EVENT } from "@/lib/intro";
 import styles from "./Runway.module.css";
 
 /**
@@ -55,13 +56,25 @@ export function Runway() {
       }, 350);
     };
 
-    if (document.readyState === "complete") schedule();
-    else window.addEventListener("load", schedule, { once: true });
+    // Don't start the 3D scene while the welcome animation plays: it would make that stutter.
+    const start = () => {
+      const intro = document.querySelector<HTMLElement>(".intro-root");
+      const playing =
+        intro &&
+        intro.dataset.done !== "true" &&
+        getComputedStyle(intro).display !== "none";
+      if (playing) window.addEventListener(INTRO_DONE_EVENT, schedule, { once: true });
+      else schedule();
+    };
+
+    if (document.readyState === "complete") start();
+    else window.addEventListener("load", start, { once: true });
 
     return () => {
       cancelled = true;
       if (timer) clearTimeout(timer);
-      window.removeEventListener("load", schedule);
+      window.removeEventListener("load", start);
+      window.removeEventListener(INTRO_DONE_EVENT, schedule);
       dispose?.();
     };
   }, []);

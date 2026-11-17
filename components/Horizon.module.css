@@ -1,0 +1,170 @@
+/*
+ * Geometry. --d is the circle diameter, --top is where its top point sits inside
+ * the clipping box. The circle's centre is on the right edge (left: 100% - d/2),
+ * so the visible arc runs from the right edge down to the left.
+ */
+.clip {
+  --d: 390vw;
+  --top: calc(100% - 28vw);
+
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.stage {
+  position: absolute;
+  inset: 0;
+  animation: rise 2.4s cubic-bezier(0.2, 0.7, 0.1, 1) both;
+}
+
+.glow,
+.disc,
+.spark {
+  position: absolute;
+  width: var(--d);
+  height: var(--d);
+  left: calc(100% - var(--d) / 2);
+  top: var(--top);
+  border-radius: 50%;
+}
+
+.glow {
+  box-shadow:
+    0 0 48px 2px color-mix(in srgb, var(--accent) 40%, transparent),
+    0 0 140px 10px color-mix(in srgb, var(--accent) 16%, transparent);
+  animation: breathe 6s ease-in-out infinite alternate;
+  will-change: opacity;
+}
+
+.disc {
+  background: var(--bg);
+  border: 1.5px solid var(--accent);
+  box-shadow: 0 0 22px color-mix(in srgb, var(--accent) 40%, transparent);
+}
+
+/* Same geometry as the circle; rotating it about its centre moves the spark along the arc. */
+.spark {
+  --tail: atan2(90px, calc(var(--d) / 2));
+
+  transform-origin: 50% 50%;
+  opacity: 0;
+  animation: spark 13s ease-in 2.6s infinite;
+  will-change: transform, opacity;
+}
+
+/* 6px spark at the top of the wrapper, with a glow */
+.spark::before {
+  content: "";
+  position: absolute;
+  top: -3px;
+  left: calc(50% - 3px);
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--ink);
+  box-shadow:
+    0 0 8px 2px var(--accent),
+    0 0 22px 4px color-mix(in srgb, var(--accent) 55%, transparent);
+}
+
+/* 90px fading tail that follows the curve behind the dot */
+.spark::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px solid var(--ink);
+  -webkit-mask-image: conic-gradient(
+    from 0deg at 50% 50%,
+    transparent 0deg,
+    transparent calc(360deg - var(--tail)),
+    #000 360deg
+  );
+  mask-image: conic-gradient(
+    from 0deg at 50% 50%,
+    transparent 0deg,
+    transparent calc(360deg - var(--tail)),
+    #000 360deg
+  );
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(14vh);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes breathe {
+  from {
+    opacity: 0.6;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* 9s travel (0% to ~69%), then a pause before the next loop */
+@keyframes spark {
+  0% {
+    transform: rotate(-36deg);
+    opacity: 0;
+    animation-timing-function: ease-in;
+  }
+  10.4% {
+    opacity: 1;
+  }
+  69.2% {
+    transform: rotate(0deg);
+    opacity: 0;
+  }
+  100% {
+    transform: rotate(0deg);
+    opacity: 0;
+  }
+}
+
+@media (min-width: 640px) {
+  .clip {
+    --d: 340vw;
+    --top: 74%;
+  }
+}
+
+@media (min-width: 1024px) {
+  .clip {
+    --d: min(260vw, 3200px);
+    --top: 64%;
+  }
+}
+
+/* Small laptops: sit a little lower so the arc clears the CTA row */
+@media (min-width: 1024px) and (max-width: 1279px) {
+  .clip {
+    --top: 72%;
+  }
+}
+
+/* Reduced motion: horizon sits in its final position, no spark, no breathing */
+@media (prefers-reduced-motion: reduce) {
+  .stage {
+    animation: none;
+  }
+
+  .glow {
+    animation: none;
+    opacity: 0.8;
+    will-change: auto;
+  }
+
+  .spark {
+    display: none;
+  }
+}

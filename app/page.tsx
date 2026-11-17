@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { ContactCta } from "@/components/ContactCta";
 import { FlightProgress } from "@/components/FlightProgress";
+import { Horizon } from "@/components/Horizon";
 import { site } from "@/lib/site";
 import styles from "./page.module.css";
 
@@ -22,6 +23,7 @@ export default function Home() {
       </header>
 
       <main className={styles.main}>
+        <Horizon />
         <div className={styles.content}>
           <p className={`label ${styles.flight}`}>{site.flightLabel}</p>
 

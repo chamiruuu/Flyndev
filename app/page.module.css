@@ -4,13 +4,13 @@
   grid-template-rows: auto 1fr auto;
   min-height: 100vh;
   min-height: 100dvh;
-  padding-inline: var(--gutter);
 }
 
 .topbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  margin-inline: var(--gutter);
   padding-block: 28px;
 }
 
@@ -25,12 +25,17 @@
 }
 
 .main {
+  position: relative;
   display: flex;
   align-items: center;
-  padding-block: 24px 40px;
+  padding-inline: var(--gutter);
+  /* mobile: leave room under the content for the horizon band */
+  padding-block: 24px calc(28vw + 12px);
 }
 
 .content {
+  position: relative;
+  z-index: 1;
   width: 100%;
   max-width: var(--measure);
 }
@@ -87,8 +92,9 @@
   z-index: 1;
   display: grid;
   gap: 4px;
-  padding-block: 20px 28px;
+  padding: 20px var(--gutter) 28px;
   border-top: 1px solid var(--line);
+  background: var(--bg);
 }
 
 .copy {
@@ -128,6 +134,10 @@
 }
 
 @media (min-width: 640px) {
+  .main {
+    padding-block: 24px 40px;
+  }
+
   .wordmark {
     width: min(100%, 460px);
     margin-bottom: 32px;

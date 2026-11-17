@@ -1,8 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
-import { INTRO_AUDIO_SRC, INTRO_DONE_EVENT, INTRO_SEEN_KEY } from "@/lib/intro";
+import { useCallback, useEffect, useRef, type CSSProperties } from "react";
+import { INTRO_DONE_EVENT, INTRO_SEEN_KEY } from "@/lib/intro";
 import styles from "./Intro.module.css";
 
 type Step = { label: string; note: string };
@@ -91,63 +91,6 @@ export function Intro({ steps }: Props) {
   const rootRef = useRef<HTMLDivElement>(null);
   const barRef = useRef<SVGRectElement>(null);
   const pctRef = useRef<HTMLSpanElement>(null);
-  const audioRef = useRef<HTMLAudioElement>(null);
-  const startedAt = useRef(0);
-  const [sound, setSound] = useState<"off" | "on" | "missing">("off");
-
-  const fadeOutAudio = useCallback(() => {
-    const audio = audioRef.current;
-    if (!audio || audio.paused) return;
-    // fade over about 0.4 s, then stop (some phones ignore volume changes, so also stop on a count)
-    let steps = 0;
-    const timer = setInterval(() => {
-      steps += 1;
-      audio.volume = Math.max(0, audio.volume - 0.1);
-      if (steps >= 10 || audio.volume <= 0.01) {
-        clearInterval(timer);
-        audio.pause();
-      }
-    }, 40);
-  }, []);
-
-  const playAudio = () => {
-    const audio = audioRef.current;
-    if (!audio) return;
-    // jump to where the animation is right now (0 at the start, later if sound is turned on mid-way)
-    audio.currentTime = startedAt.current
-      ? Math.max(0, (performance.now() - startedAt.current) / 1000)
-      : 0;
-    audio.volume = 1;
-    audio.play().then(
-      () => setSound("on"),
-      () => setSound("off"),
-    );
-  };
-
-  /** Starts the animation (and the voiceover when asked). Needs a click, which also unlocks sound. */
-  const begin = (withSound: boolean) => {
-    const root = rootRef.current;
-    if (!root || root.dataset.started === "true") return;
-    root.dataset.started = "true";
-    startedAt.current = performance.now();
-    try {
-      sessionStorage.setItem(INTRO_SEEN_KEY, "1");
-    } catch {
-      /* storage can be blocked; the intro just plays again next time */
-    }
-    if (withSound) playAudio();
-  };
-
-  const toggleSound = () => {
-    const audio = audioRef.current;
-    if (!audio) return;
-    if (sound === "on") {
-      audio.pause();
-      setSound("off");
-    } else {
-      playAudio();
-    }
-  };
 
   const skip = useCallback(() => {
     const root = rootRef.current;
@@ -157,26 +100,22 @@ export function Intro({ steps }: Props) {
     } catch {
       /* ignore */
     }
-    root.dataset.started = "true";
     root.dataset.skipping = "true";
-    fadeOutAudio();
-  }, [fadeOutAudio]);
+  }, []);
 
   useEffect(() => {
     const root = rootRef.current;
     if (!root) return;
     const app = document.querySelector<HTMLElement>("[data-app]");
-    const audio = audioRef.current;
 
     let raf = 0;
-    let safety: ReturnType<typeof setTimeout> | undefined;
+    const timers: ReturnType<typeof setTimeout>[] = [];
     const finish = () => {
       cancelAnimationFrame(raf);
-      if (safety) clearTimeout(safety);
+      timers.forEach(clearTimeout);
       root.dataset.done = "true";
       if (app) app.inert = false;
       document.documentElement.dataset.intro = "seen";
-      fadeOutAudio(); // let the voice finish its last word instead of cutting it
       window.dispatchEvent(new Event(INTRO_DONE_EVENT));
     };
 
@@ -187,11 +126,10 @@ export function Intro({ steps }: Props) {
     }
 
     if (app) app.inert = true; // the page behind the intro is not reachable until it is done
-
-    // Only fetch the voiceover when the intro will really play (not for repeat visits)
-    if (audio) {
-      audio.preload = "auto";
-      audio.load();
+    try {
+      sessionStorage.setItem(INTRO_SEEN_KEY, "1"); // plays once per visit
+    } catch {
+      /* storage can be blocked; the intro just plays again next time */
     }
 
     const onEnd = (e: AnimationEvent) => {
@@ -200,16 +138,9 @@ export function Intro({ steps }: Props) {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") skip();
     };
-    const onAudioError = () => setSound("missing");
     root.addEventListener("animationend", onEnd);
     window.addEventListener("keydown", onKey);
-    audio?.addEventListener("error", onAudioError);
-
-    // Once started, never trap the page behind the overlay, whatever happens.
-    const watchStart = new MutationObserver(() => {
-      if (root.dataset.started === "true" && !safety) safety = setTimeout(finish, 24000);
-    });
-    watchStart.observe(root, { attributes: true, attributeFilter: ["data-started"] });
+    timers.push(setTimeout(finish, 24000)); // never trap the page behind the overlay, whatever happens
 
     // The 0 to 100% counter reads the progress bar's real width every frame, so the number
     // and the bar always agree (and it works in every browser, with no CSS counter tricks).
@@ -235,15 +166,12 @@ export function Intro({ steps }: Props) {
 
     return () => {
       cancelAnimationFrame(raf);
-      watchStart.disconnect();
-      if (safety) clearTimeout(safety);
+      timers.forEach(clearTimeout);
       root.removeEventListener("animationend", onEnd);
       window.removeEventListener("keydown", onKey);
-      audio?.removeEventListener("error", onAudioError);
-      audio?.pause();
       if (app) app.inert = false;
     };
-  }, [skip, fadeOutAudio]);
+  }, [skip]);
 
   const label = (i: number) => steps[i]?.label ?? "";
   const note = (i: number) => steps[i]?.note ?? "";
@@ -252,24 +180,10 @@ export function Intro({ steps }: Props) {
     <div
       ref={rootRef}
       className={`intro-root ${styles.root}`}
-      data-started="false"
       role="region"
       aria-label="Welcome to Flyndev"
     >
-      <audio ref={audioRef} src={INTRO_AUDIO_SRC} preload="none" />
-
       <div className={styles.controls}>
-        {sound !== "missing" && (
-          <button
-            type="button"
-            className={`${styles.ctl} ${styles.soundBtn} cursor-target`}
-            data-cursor-label="Sound"
-            aria-pressed={sound === "on"}
-            onClick={toggleSound}
-          >
-            Sound {sound === "on" ? "on" : "off"}
-          </button>
-        )}
         <button
           type="button"
           className={`${styles.ctl} cursor-target`}
@@ -277,34 +191,6 @@ export function Intro({ steps }: Props) {
           onClick={skip}
         >
           Skip intro
-        </button>
-      </div>
-
-      {/* Click to enter: the click unlocks sound and starts the animation from zero */}
-      <div className={styles.gate}>
-        <Image
-          className={styles.gateLogo}
-          src="/brand/wordmark.png"
-          alt=""
-          width={1280}
-          height={151}
-          priority
-        />
-        <p className={`label ${styles.gateLabel}`}>The journey with Flyndev</p>
-        <button
-          type="button"
-          className={`${styles.enter} cursor-target`}
-          data-cursor-label="Enter"
-          onClick={() => begin(sound !== "missing")}
-        >
-          Enter with sound
-        </button>
-        <button
-          type="button"
-          className={`${styles.enterQuiet} cursor-target`}
-          onClick={() => begin(false)}
-        >
-          Enter without sound
         </button>
       </div>
 

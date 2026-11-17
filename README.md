@@ -164,25 +164,16 @@ scripts/        dev-only brand asset generator
 
 ## The welcome animation
 
-First visit of a session: a full-screen, roughly 17-second motion piece plays before the site. It tells
+First visit of a session: a full-screen, roughly 17-second motion piece plays before the site, with no sound. It tells
 the client journey in five scenes (Idea, Plan, Design, Build, Launch; the last is a 2D plane
 taking off), then a curtain opens on the page. It lives in `components/Intro.tsx` and `Intro.module.css` (pure CSS, no libraries).
 
-- Visitors can skip it with the **Skip intro** button or **Esc**, and it only starts after they click Enter.
+- Visitors can skip it with the **Skip intro** button or **Esc**.
 - It plays once per visit (tab session), never with reduced motion, and never without JS.
 - Step names and captions come from `journey` in `lib/site.ts`. The scene artwork and timings
   are fixed at five steps; scene start times and lengths are the `START` and `LEN` constants
   in `Intro.tsx`, which must match the timings in `Intro.module.css`.
 - The 3D scene waits until the animation has finished before it starts.
-
-### Voiceover
-
-The intro plays a voiceover from `public/audio/intro-voiceover.mp3`. It is currently a demo
-file with no voice (a quiet bed and a soft chime at each scene start). Visitors see a minimal
-"Enter" screen first: the click unlocks sound in every browser and starts the animation and the
-audio together. They can also enter without sound, and toggle sound while it plays.
-The script, exact timestamps and an AI-voice prompt are in `docs/intro-voiceover.md`. To go live
-with the real voice, replace the MP3 (same name, about 17 seconds). Nothing else changes.
 
 ## Cursor and scrolling
 

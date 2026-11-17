@@ -2,6 +2,8 @@ import Image from "next/image";
 import { ContactCta } from "@/components/ContactCta";
 import { FlightProgress } from "@/components/FlightProgress";
 import { Horizon } from "@/components/Horizon";
+import { LocalClock } from "@/components/LocalClock";
+import { StatusBoard } from "@/components/StatusBoard";
 import { site } from "@/lib/site";
 import styles from "./page.module.css";
 
@@ -19,7 +21,10 @@ export default function Home() {
           className={styles.fmark}
           priority
         />
-        <p className={`label ${styles.place}`}>{site.location.label}</p>
+        <p className={`label ${styles.place}`}>
+          <span className={styles.placeName}>{site.location.label}</span>
+          <LocalClock timeZone={site.timezone} />
+        </p>
       </header>
 
       <main className={styles.main}>
@@ -44,11 +49,9 @@ export default function Home() {
             projects.
           </p>
 
-          {/* Phase 4 replaces this with the split-flap StatusBoard */}
-          <p className={styles.status}>
-            <span className="label">Status</span>
-            <span className={styles.statusValue}>{site.statuses[0]}</span>
-          </p>
+          <div className={styles.statusWrap}>
+            <StatusBoard statuses={site.statuses} />
+          </div>
 
           <ContactCta />
         </div>

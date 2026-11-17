@@ -20,8 +20,20 @@
 }
 
 .place {
+  display: flex;
   margin: 0;
   font-size: 11px;
+}
+
+/* mobile shows the time only; the place name returns from 640px up */
+.placeName {
+  display: none;
+}
+
+@media (scripting: none) {
+  .placeName {
+    display: inline;
+  }
 }
 
 .main {
@@ -70,21 +82,8 @@
   text-wrap: pretty;
 }
 
-.status {
-  display: flex;
-  align-items: center;
-  gap: 14px;
+.statusWrap {
   margin: 0 0 32px;
-  min-height: 44px;
-}
-
-.statusValue {
-  font-family: var(--font-label);
-  font-weight: 500;
-  font-size: 13px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--ink);
 }
 
 .footer {
@@ -134,6 +133,14 @@
 }
 
 @media (min-width: 640px) {
+  .placeName {
+    display: inline;
+  }
+
+  .placeName::after {
+    content: "\00a0\00b7\00a0";
+  }
+
   .main {
     padding-block: 24px 40px;
   }
@@ -152,13 +159,20 @@
     margin-bottom: 36px;
   }
 
-  .status {
+  .statusWrap {
     margin-bottom: 36px;
   }
 
   .flight {
     font-size: 12px;
     margin-bottom: 28px;
+  }
+}
+
+/* no JS means no clock, so no trailing separator */
+@media (min-width: 640px) and (scripting: none) {
+  .placeName::after {
+    content: none;
   }
 }
 

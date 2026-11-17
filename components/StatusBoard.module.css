@@ -1,0 +1,65 @@
+.root {
+  display: grid;
+  gap: 10px;
+  width: 100%;
+}
+
+.title {
+  font-size: 11px;
+}
+
+.board {
+  display: grid;
+  grid-template-columns: repeat(18, minmax(0, 1fr));
+  gap: 2px;
+  width: 100%;
+  max-width: 560px;
+}
+
+.tile {
+  position: relative;
+  display: grid;
+  place-items: center;
+  aspect-ratio: 5 / 7;
+  border-radius: 3px;
+  background: var(--tile);
+  color: var(--ink);
+  font-family: var(--font-label);
+  font-weight: 500;
+  font-size: clamp(10px, 3.3vw, 12px);
+  line-height: 1;
+  user-select: none;
+}
+
+/* the dark seam across the middle of a split-flap tile */
+.tile::after {
+  content: "";
+  position: absolute;
+  inset: 50% 0 auto;
+  height: 1px;
+  background: var(--bg);
+}
+
+.live {
+  color: var(--accent);
+}
+
+@media (min-width: 640px) {
+  .root {
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+    gap: 18px;
+  }
+
+  .title {
+    font-size: 12px;
+  }
+
+  .board {
+    gap: 3px;
+  }
+
+  .tile {
+    font-size: 17px;
+  }
+}

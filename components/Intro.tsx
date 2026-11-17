@@ -116,6 +116,7 @@ export function Intro({ steps }: Props) {
       root.dataset.done = "true";
       if (app) app.inert = false;
       document.documentElement.dataset.intro = "seen";
+      document.documentElement.dataset.reveal = "go";
       window.dispatchEvent(new Event(INTRO_DONE_EVENT));
     };
 
@@ -135,6 +136,11 @@ export function Intro({ steps }: Props) {
     const onEnd = (e: AnimationEvent) => {
       if (e.target === root) finish();
     };
+    // the curtain starts to lift (or Skip is pressed): let the page behind it animate in
+    const onStart = (e: AnimationEvent) => {
+      if (e.target === root) document.documentElement.dataset.reveal = "go";
+    };
+    root.addEventListener("animationstart", onStart);
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") skip();
     };
@@ -167,6 +173,7 @@ export function Intro({ steps }: Props) {
     return () => {
       cancelAnimationFrame(raf);
       timers.forEach(clearTimeout);
+      root.removeEventListener("animationstart", onStart);
       root.removeEventListener("animationend", onEnd);
       window.removeEventListener("keydown", onKey);
       if (app) app.inert = false;

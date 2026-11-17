@@ -20,12 +20,19 @@ export const site = {
   timezone: "Asia/Colombo",
   location: { locality: "Colombo", country: "LK", label: "COLOMBO, LK" },
   flightLabel: "FLIGHT FD-001 — FLYNDEV.COM",
+  // One of these is shown per page load, and the next refresh shows the next one (about planes
+  // and building things). Keep each at 18 characters or fewer so it fits on a phone.
   statuses: [
-    "PRE-FLIGHT CHECKS",
-    "TAXIING TO RUNWAY",
-    "WRITING CODE",
-    "FUELLING UP",
-    "AWAITING CLEARANCE",
+    "BOARDING YOUR IDEA",
+    "FUELLING THE BUILD",
+    "WIRING THE COCKPIT",
+    "CLEARED FOR BUILD",
+    "TESTING THE WINGS",
+    "ASSEMBLING THE JET",
+    "LAYING THE RUNWAY",
+    "ENGINES WARMING UP",
+    "RIVETING THE TAIL",
+    "TAXIING TO LAUNCH",
   ],
 } as const;
 

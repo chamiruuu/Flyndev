@@ -50,10 +50,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className={`${inter.variable} ${jetbrainsMono.variable}`}>
       <body>
-        {/* Runs before first paint: skip the welcome animation if this visit already saw it */}
+        {/* Runs before first paint: skip the intro if this visit already saw it, decide whether the
+            page entrance should wait for it, and pick this refresh's status word (the next one in
+            the list each time). */}
         <script
           dangerouslySetInnerHTML={{
-            __html: `try{if(sessionStorage.getItem(${JSON.stringify(INTRO_SEEN_KEY)}))document.documentElement.dataset.intro="seen"}catch(e){}`,
+            __html: `try{var d=document.documentElement,seen=sessionStorage.getItem(${JSON.stringify(INTRO_SEEN_KEY)});if(seen)d.dataset.intro="seen";d.dataset.reveal=seen?"go":"wait";var n=${site.statuses.length},i;try{var l=parseInt(localStorage.getItem("flyndev-status"),10);i=isNaN(l)?Math.floor(Math.random()*n):(l+1)%n;localStorage.setItem("flyndev-status",String(i))}catch(e){i=Math.floor(Math.random()*n)}d.dataset.status=String(i)}catch(e){}`,
           }}
         />
         {children}

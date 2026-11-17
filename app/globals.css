@@ -90,3 +90,46 @@ body {
 html[data-intro="seen"] .intro-root {
   display: none !important;
 }
+
+/*
+ * Page entrance. Elements marked .rv rise and fade in, one after another, once the page is
+ * revealed (as the intro curtain lifts, or straight away on repeat visits). Without JavaScript
+ * there is no data-reveal attribute, so everything is simply visible.
+ */
+html[data-reveal="wait"] .rv {
+  opacity: 0;
+  transform: translateY(14px);
+  /* safety net: if the script never reveals the page, show it anyway after the intro's length */
+  animation: rvFallback 0.01s linear 19s forwards;
+}
+
+html[data-reveal="go"] .rv {
+  animation: rvIn 0.9s cubic-bezier(0.2, 0.7, 0.1, 1) var(--rv, 0s) both;
+}
+
+@keyframes rvIn {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes rvFallback {
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html .rv,
+  html[data-reveal] .rv {
+    opacity: 1 !important;
+    transform: none !important;
+    animation: none !important;
+  }
+}

@@ -29,14 +29,14 @@ To preview the production build: `npm run build && npx serve out`.
 
 Almost everything you will want to change is in **`lib/site.ts`**:
 
-| Field         | Controls                                                         |
-| ------------- | ---------------------------------------------------------------- |
-| `email`       | The "Start a project" button, the email under it, and JSON-LD    |
-| `instagram`   | Handle for the "Follow the build" link and JSON-LD `sameAs`      |
-| `journey`     | The animated bottom-bar steps (IDEA → LAUNCH) and their captions |
-| `statuses`    | Status board messages (max 18 characters each, shown in caps)    |
-| `timezone`    | Timezone for the live clock                                      |
-| `flightLabel` | The small mono label above the wordmark                          |
+| Field         | Controls                                                                                                                                       |
+| ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| `email`       | The "Start a project" button, the email under it, and JSON-LD                                                                                  |
+| `instagram`   | Handle for the "Follow the build" link and JSON-LD `sameAs`                                                                                    |
+| `journey`     | The animated bottom-bar steps (IDEA → LAUNCH) and their captions                                                                               |
+| `statuses`    | Status words (about planes and building things): one is shown per page load, the next one on each refresh. Keep each at 18 characters or fewer |
+| `timezone`    | Timezone for the live clock                                                                                                                    |
+| `flightLabel` | The small mono label above the wordmark                                                                                                        |
 
 Page title and description (and the JSON-LD organisation) live in `lib/seo.ts`.
 Brand colours are the tokens at the top of `app/globals.css`.
@@ -174,6 +174,13 @@ taking off), then a curtain opens on the page. It lives in `components/Intro.tsx
   are fixed at five steps; scene start times and lengths are the `START` and `LEN` constants
   in `Intro.tsx`, which must match the timings in `Intro.module.css`.
 - The 3D scene waits until the animation has finished before it starts.
+
+## Page entrance
+
+When the intro curtain lifts (or straight away on repeat visits), the page animates in: the flight
+label, wordmark, headline, text, status board, button and small print rise in one after another,
+and the status tiles flip into place like a departure board. Elements opt in with the `rv` class
+and a delay (`--rv`, see `app/globals.css`). It is skipped with reduced motion and without JS.
 
 ## Cursor and scrolling
 

@@ -19,9 +19,9 @@
   font-size: 11px;
 }
 
-/* the terminal row: status light + one flap tile per character */
-.housing {
-  display: flex;
+/* the terminal row: status light + one flap tile per character. Hidden unless it is the chosen word. */
+.set {
+  display: none;
   align-items: center;
   gap: 8px;
   max-width: 100%;
@@ -31,7 +31,7 @@
   background: #0a0a0a;
 }
 
-.housing::after {
+.set::after {
   /* mirrors the status light on the left, so the letters are exactly centered in the box */
   content: "";
   flex: none;
@@ -46,20 +46,6 @@
   background: var(--accent);
   box-shadow: 0 0 8px 1px color-mix(in srgb, var(--accent) 70%, transparent);
   animation: pulse 2.4s ease-in-out infinite;
-}
-
-.stack {
-  display: grid;
-  justify-items: center;
-}
-
-/* the live board and the invisible sizer share one grid cell */
-.stack > * {
-  grid-area: 1 / 1;
-}
-
-.sizer {
-  visibility: hidden;
 }
 
 .board {
@@ -96,8 +82,34 @@
   background: var(--bg);
 }
 
-.live {
-  color: var(--accent);
+/* when the page is revealed, each tile flips into place like a departure board settling */
+.board {
+  perspective: 420px;
+}
+
+:global(html[data-reveal="wait"]) .tile {
+  opacity: 0;
+}
+
+:global(html[data-reveal="go"]) .tile {
+  animation: flipIn 0.75s cubic-bezier(0.2, 0.7, 0.1, 1) calc(1s + var(--d, 0s)) both;
+}
+
+@keyframes flipIn {
+  0% {
+    opacity: 0;
+    transform: rotateX(-95deg);
+    color: var(--accent);
+  }
+  55% {
+    opacity: 1;
+    color: var(--accent);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+    color: var(--ink);
+  }
 }
 
 .gap {
@@ -126,7 +138,7 @@
     font-size: 12px;
   }
 
-  .housing {
+  .set {
     gap: 10px;
     padding: 7px 12px;
   }
@@ -141,5 +153,14 @@
 @media (prefers-reduced-motion: reduce) {
   .led {
     animation: none;
+  }
+}
+
+/* reduced motion: the letters are simply there, no flipping */
+@media (prefers-reduced-motion: reduce) {
+  :global(html) .tile,
+  :global(html[data-reveal]) .tile {
+    opacity: 1 !important;
+    animation: none !important;
   }
 }

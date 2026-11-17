@@ -339,6 +339,7 @@ export async function createRunway(
     renderer.setPixelRatio(maxDpr);
     renderer.setSize(w, h, false);
     const vp = vanishingPoint(w, h);
+    glow.visible = w / h >= 0.9; // portrait/phone: no orange glow, only the faint runway lights
     camera.aspect = w / h;
     camera.setViewOffset(w, h, (0.5 - vp.x) * w, (0.5 - vp.y) * h, w, h);
     camera.updateProjectionMatrix();

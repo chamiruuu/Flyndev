@@ -45,21 +45,10 @@
   opacity: 0;
 }
 
+/* portrait phones: no orange gradient at all (desktop keeps it) */
 @media (max-aspect-ratio: 9/10) {
   .wrap::before {
-    background:
-      radial-gradient(
-        ellipse 70% 18% at 50% 86%,
-        color-mix(in srgb, var(--accent) 22%, transparent),
-        transparent 70%
-      ),
-      linear-gradient(
-          90deg,
-          transparent 10%,
-          color-mix(in srgb, var(--accent) 45%, transparent) 50%,
-          transparent 90%
-        )
-        50% 86% / 100% 1px no-repeat;
+    display: none;
   }
 }
 

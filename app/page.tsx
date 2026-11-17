@@ -50,12 +50,7 @@ export default function Home() {
                 <span className={styles.placeName}>{site.location.label}</span>
                 <LocalClock timeZone={site.timezone} />
               </p>
-              <p className={styles.fine}>
-                <a className={`label ${styles.email}`} href={`mailto:${site.email}`}>
-                  {site.email}
-                </a>
-                <span className={`label ${styles.copy}`}>© {year} Flyndev</span>
-              </p>
+              <p className={`label ${styles.copy}`}>© {year} Flyndev</p>
             </div>
           </div>
         </main>

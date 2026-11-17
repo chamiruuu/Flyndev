@@ -192,10 +192,15 @@ export function Contrail() {
           willChange: "transform",
         }}
       >
+        {/* a real-sized svg, offset so that the nose (0,0 in its drawing) is on the wrapper's origin */}
         <svg
-          width="0"
-          height="0"
+          width="30"
+          height="26"
+          viewBox="-24 -13 30 26"
           style={{
+            position: "absolute",
+            left: -24,
+            top: -13,
             overflow: "visible",
             display: "block",
             filter: "drop-shadow(0 0 4px rgba(253, 95, 0, 0.85))",

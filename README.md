@@ -182,7 +182,7 @@ file with no voice (a quiet bed and a soft chime at each scene start). Visitors 
 "Enter" screen first: the click unlocks sound in every browser and starts the animation and the
 audio together. They can also enter without sound, and toggle sound while it plays.
 The script, exact timestamps and an AI-voice prompt are in `docs/intro-voiceover.md`. To go live
-with the real voice, replace the MP3 (same name, 19.6 seconds). Nothing else changes.
+with the real voice, replace the MP3 (same name, about 17 seconds). Nothing else changes.
 
 ## Mouse effects
 

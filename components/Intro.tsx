@@ -10,7 +10,7 @@ type Props = { steps: readonly Step[] };
 
 // Scene start times and lengths in seconds. The CSS is timed to match: keep them in sync.
 const START = [0, 2.8, 5.8, 9.0, 12.0];
-const LEN = [2.8, 3.0, 3.2, 3.0, 7.0];
+const LEN = [2.8, 3.0, 3.2, 3.0, 3.8];
 
 // Scenes 1 to 4 were designed at a faster pace; K stretches every inner delay so each part
 // has time to be read. The launch scene (5) uses its own explicit timings.

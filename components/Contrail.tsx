@@ -4,8 +4,9 @@ import { useEffect, useRef } from "react";
 
 const TRAIL_MS = 850; // how long a point of the vapour trail lives
 const TAIL = 12; // distance from the plane's nose to where the trail leaves it
-const MIN_STEP = 4; // pixels between trail samples
-const MAX_POINTS = 90;
+const MIN_STEP = 2.5; // pixels between trail samples
+const MAX_POINTS = 150;
+const BANDS = 18; // the trail is drawn in this many seamless pieces, each with its own fade
 
 type Pt = { x: number; y: number; t: number };
 
@@ -54,42 +55,82 @@ export function Contrail() {
       plane.style.transform = `translate3d(${px}px, ${py}px, 0) rotate(${angle}rad)`;
     };
 
+    /** Catmull-Rom spline through the raw samples, so the trail is a smooth curve, not a polyline. */
+    const smooth = (pts: Pt[]): Pt[] => {
+      const out: Pt[] = [];
+      const n = pts.length;
+      for (let i = 0; i < n - 1; i++) {
+        const p0 = pts[Math.max(0, i - 1)];
+        const p1 = pts[i];
+        const p2 = pts[i + 1];
+        const p3 = pts[Math.min(n - 1, i + 2)];
+        const steps = Math.min(
+          10,
+          Math.max(1, Math.ceil(Math.hypot(p2.x - p1.x, p2.y - p1.y) / 2)),
+        );
+        for (let k = 0; k < steps; k++) {
+          const u = k / steps;
+          const u2 = u * u;
+          const u3 = u2 * u;
+          const cr = (a: number, b: number, c: number, d: number) =>
+            0.5 *
+            (2 * b +
+              (-a + c) * u +
+              (2 * a - 5 * b + 4 * c - d) * u2 +
+              (-a + 3 * b - 3 * c + d) * u3);
+          out.push({
+            x: cr(p0.x, p1.x, p2.x, p3.x),
+            y: cr(p0.y, p1.y, p2.y, p3.y),
+            t: p1.t + (p2.t - p1.t) * u,
+          });
+        }
+      }
+      out.push(pts[n - 1]);
+      return out;
+    };
+
+    const lifeAt = (t: number, now: number) =>
+      Math.min(1, Math.max(0, 1 - (now - t) / TRAIL_MS));
+
     const drawTrail = (now: number) => {
       ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
       while (trail.length && now - trail[0].t > TRAIL_MS) trail.shift();
       const n = trail.length;
-      if (n < 2) {
-        if (n === 0) {
-          drawing = false;
-          return;
-        }
-        raf = requestAnimationFrame(drawTrail);
+      if (n === 0) {
+        drawing = false;
         return;
       }
-      ctx.lineCap = "round";
-      ctx.lineJoin = "round";
-      // each piece is a quadratic curve through segment midpoints, so the trail is smooth
-      for (let i = 1; i < n; i++) {
-        const prev = trail[i - 1];
-        const cur = trail[i];
-        const next = trail[i + 1] ?? cur;
-        const life = Math.max(0, 1 - (now - cur.t) / TRAIL_MS);
-        const sx = (prev.x + cur.x) / 2;
-        const sy = (prev.y + cur.y) / 2;
-        const ex = (cur.x + next.x) / 2;
-        const ey = (cur.y + next.y) / 2;
-        ctx.strokeStyle = `rgba(253, 95, 0, ${0.28 * life})`;
-        ctx.lineWidth = 1 + 4.5 * life;
-        ctx.beginPath();
-        ctx.moveTo(sx, sy);
-        ctx.quadraticCurveTo(cur.x, cur.y, ex, ey);
-        ctx.stroke();
-        ctx.strokeStyle = `rgba(246, 239, 231, ${0.6 * life})`;
-        ctx.lineWidth = 0.6 + 0.9 * life;
-        ctx.beginPath();
-        ctx.moveTo(sx, sy);
-        ctx.quadraticCurveTo(cur.x, cur.y, ex, ey);
-        ctx.stroke();
+      if (n >= 2) {
+        const pts = smooth(trail);
+        const m = pts.length;
+        const size = Math.max(2, Math.ceil((m - 1) / BANDS));
+        ctx.lineJoin = "round";
+        // Each band is ONE continuous stroke with a gradient along it. Because nothing overlaps,
+        // there are no darker "beads" where segments meet, which is what made it look rough.
+        for (let i0 = 0; i0 < m - 1; i0 += size) {
+          const i1 = Math.min(m - 1, i0 + size);
+          const a = pts[i0];
+          const z = pts[i1];
+          const l0 = lifeAt(a.t, now);
+          const l1 = lifeAt(z.t, now);
+          if (l0 <= 0 && l1 <= 0) continue;
+          if (Math.hypot(z.x - a.x, z.y - a.y) < 0.5) continue;
+          const lm = (l0 + l1) / 2;
+          ctx.lineCap = i1 === m - 1 ? "round" : "butt"; // a soft rounded tip at the plane end
+          ctx.beginPath();
+          ctx.moveTo(a.x, a.y);
+          for (let k = i0 + 1; k <= i1; k++) ctx.lineTo(pts[k].x, pts[k].y);
+          const stroke = (rgb: string, alpha: number, width: number) => {
+            const g = ctx.createLinearGradient(a.x, a.y, z.x, z.y);
+            g.addColorStop(0, `rgba(${rgb}, ${alpha * l0 ** 1.4})`);
+            g.addColorStop(1, `rgba(${rgb}, ${alpha * l1 ** 1.4})`);
+            ctx.strokeStyle = g;
+            ctx.lineWidth = width;
+            ctx.stroke();
+          };
+          stroke("253, 95, 0", 0.32, 1 + 4.5 * lm ** 0.8);
+          stroke("246, 239, 231", 0.62, 0.6 + 0.9 * lm ** 0.8);
+        }
       }
       raf = requestAnimationFrame(drawTrail);
     };

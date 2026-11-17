@@ -53,6 +53,7 @@ export function StatusBoard({ statuses }: Props) {
               ),
             )}
           </div>
+          <span className={styles.led} aria-hidden="true" />
           <span className="visually-hidden">Status: {text}</span>
         </div>
       ))}

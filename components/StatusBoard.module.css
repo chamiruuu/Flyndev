@@ -31,13 +31,6 @@
   background: #0a0a0a;
 }
 
-.set::after {
-  /* mirrors the status light on the left, so the letters are exactly centered in the box */
-  content: "";
-  flex: none;
-  width: 6px;
-}
-
 .led {
   flex: none;
   width: 6px;

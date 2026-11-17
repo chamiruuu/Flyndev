@@ -9,8 +9,13 @@ type Step = { label: string; note: string };
 type Props = { steps: readonly Step[] };
 
 // Scene start times and lengths in seconds. The CSS is timed to match: keep them in sync.
-const START = [0, 1.6, 3.3, 5.0, 6.7];
-const LEN = [1.7, 1.8, 1.8, 1.8, 2.2];
+const START = [0, 2.8, 5.8, 9.0, 12.0];
+const LEN = [2.8, 3.0, 3.2, 3.0, 5.0];
+
+// Scenes 1 to 4 were designed at a faster pace; K stretches every inner delay so each part
+// has time to be read. The launch scene (5) uses its own explicit timings.
+const K = 1.65;
+const t = (x: number) => `${(x * K).toFixed(2)}s`;
 
 const css = (vars: Record<string, string | number>) => vars as unknown as CSSProperties;
 const scene = (i: number) => css({ "--s": `${START[i]}s`, "--len": `${LEN[i]}s` });
@@ -85,7 +90,7 @@ function Word({ text }: { text: string }) {
   return (
     <div className={styles.word} aria-hidden="true">
       {[...text.toUpperCase()].map((ch, k) => (
-        <span key={k} className={styles.ch} style={css({ "--d": `${0.08 + k * 0.06}s` })}>
+        <span key={k} className={styles.ch} style={css({ "--d": t(0.08 + k * 0.06) })}>
           {ch}
         </span>
       ))}
@@ -137,7 +142,7 @@ export function Intro({ steps }: Props) {
     };
     root.addEventListener("animationend", onEnd);
     window.addEventListener("keydown", onKey);
-    const safety = setTimeout(finish, 13000); // never trap the page behind the overlay
+    const safety = setTimeout(finish, 22000); // never trap the page behind the overlay
 
     return () => {
       clearTimeout(safety);
@@ -204,7 +209,7 @@ export function Intro({ steps }: Props) {
                 x2={x2}
                 y2={y2}
                 pathLength={1}
-                style={css({ "--d": `${d}s` })}
+                style={css({ "--d": t(d) })}
               />
             ))}
             {[0.22, 0.5, 0.78].map((d, k) => (
@@ -214,7 +219,7 @@ export function Intro({ steps }: Props) {
                 cx={150}
                 cy={100}
                 r={8}
-                style={css({ "--d": `${d}s` })}
+                style={css({ "--d": t(d) })}
               />
             ))}
             {MOTES.map(([cx, cy, mx, my, d, r], k) => (
@@ -224,7 +229,7 @@ export function Intro({ steps }: Props) {
                 cx={cx}
                 cy={cy}
                 r={r}
-                style={css({ "--d": `${d}s`, "--mx": `${mx}px`, "--my": `${my}px` })}
+                style={css({ "--d": t(d), "--mx": `${mx}px`, "--my": `${my}px` })}
               />
             ))}
             <circle className={styles.core} cx={150} cy={100} r={7} />
@@ -251,7 +256,7 @@ export function Intro({ steps }: Props) {
               pathLength={1}
             />
             {PINS.map((p, k) => (
-              <g key={k} className={styles.pin} style={css({ "--d": `${p.d}s` })}>
+              <g key={k} className={styles.pin} style={css({ "--d": t(p.d) })}>
                 <circle className={styles.pinRing} cx={p.x} cy={p.y} r={4} />
                 <circle className={styles.pinDot} cx={p.x} cy={p.y} r={2.6} />
                 <text
@@ -296,13 +301,13 @@ export function Intro({ steps }: Props) {
               height={172}
               rx={8}
               pathLength={1}
-              style={css({ "--d": "0.2s" })}
+              style={css({ "--d": t(0.2) })}
             />
             <path
               className={`${styles.wf} ${styles.headFill}`}
               d="M20 40H280"
               pathLength={1}
-              style={css({ "--d": "0.3s" })}
+              style={css({ "--d": t(0.3) })}
             />
             {[34, 44, 54].map((x, k) => (
               <circle
@@ -311,7 +316,7 @@ export function Intro({ steps }: Props) {
                 cx={x}
                 cy={27}
                 r={2}
-                style={css({ "--d": `${0.45 + k * 0.06}s` })}
+                style={css({ "--d": t(0.45 + k * 0.06) })}
               />
             ))}
             {[180, 204, 228].map((x, k) => (
@@ -324,7 +329,7 @@ export function Intro({ steps }: Props) {
                 height={5}
                 rx={2.5}
                 pathLength={1}
-                style={css({ "--d": `${0.5 + k * 0.05}s` })}
+                style={css({ "--d": t(0.5 + k * 0.05) })}
               />
             ))}
             <rect
@@ -335,7 +340,7 @@ export function Intro({ steps }: Props) {
               height={9}
               rx={4}
               pathLength={1}
-              style={css({ "--d": "0.55s" })}
+              style={css({ "--d": t(0.55) })}
             />
             <rect
               className={`${styles.wf} ${styles.textFill}`}
@@ -345,7 +350,7 @@ export function Intro({ steps }: Props) {
               height={9}
               rx={4}
               pathLength={1}
-              style={css({ "--d": "0.62s" })}
+              style={css({ "--d": t(0.62) })}
             />
             <rect
               className={`${styles.wf} ${styles.mutedFill}`}
@@ -355,7 +360,7 @@ export function Intro({ steps }: Props) {
               height={6}
               rx={3}
               pathLength={1}
-              style={css({ "--d": "0.7s" })}
+              style={css({ "--d": t(0.7) })}
             />
             <rect
               className={`${styles.wf} ${styles.btnFill}`}
@@ -365,7 +370,7 @@ export function Intro({ steps }: Props) {
               height={16}
               rx={4}
               pathLength={1}
-              style={css({ "--d": "0.76s" })}
+              style={css({ "--d": t(0.76) })}
             />
             <rect
               className={`${styles.wf} ${styles.imgFill}`}
@@ -375,13 +380,13 @@ export function Intro({ steps }: Props) {
               height={70}
               rx={6}
               pathLength={1}
-              style={css({ "--d": "0.7s" })}
+              style={css({ "--d": t(0.7) })}
             />
             <path
               className={`${styles.wf} ${styles.cross}`}
               d="M186 56L266 126M266 56L186 126"
               pathLength={1}
-              style={css({ "--d": "0.85s" })}
+              style={css({ "--d": t(0.85) })}
             />
             {[36, 116, 196].map((x, k) => (
               <rect
@@ -393,7 +398,7 @@ export function Intro({ steps }: Props) {
                 height={34}
                 rx={5}
                 pathLength={1}
-                style={css({ "--d": `${0.9 + k * 0.07}s` })}
+                style={css({ "--d": t(0.9 + k * 0.07) })}
               />
             ))}
             {/* selection handles on the button */}
@@ -460,7 +465,7 @@ export function Intro({ steps }: Props) {
                 cx={x}
                 cy={27}
                 r={2}
-                style={css({ "--d": `${0.1 + k * 0.05}s` })}
+                style={css({ "--d": t(0.1 + k * 0.05) })}
               />
             ))}
             <path className={styles.editorLine} d="M14 40H184" />
@@ -473,7 +478,7 @@ export function Intro({ steps }: Props) {
                 width={w}
                 height={5}
                 rx={2.5}
-                style={css({ "--d": `${0.3 + k * 0.11}s` })}
+                style={css({ "--d": t(0.3 + k * 0.11) })}
               />
             ))}
             <rect
@@ -487,7 +492,7 @@ export function Intro({ steps }: Props) {
               <g
                 key={k}
                 className={styles.block}
-                style={css({ "--d": `${0.75 + k * 0.17}s` })}
+                style={css({ "--d": t(0.75 + k * 0.17) })}
               >
                 <rect
                   className={styles.blockBody}
@@ -574,7 +579,7 @@ export function Intro({ steps }: Props) {
                 width={w}
                 height={1}
                 fill="url(#introStreak)"
-                style={css({ "--d": `${d}s` })}
+                style={css({ "--d": `${(2.6 + (d - 1.2)).toFixed(2)}s` })}
               />
             ))}
             <circle className={styles.shock} cx={150} cy={100} r={6} />

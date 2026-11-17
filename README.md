@@ -164,7 +164,7 @@ scripts/        dev-only brand asset generator
 
 ## The welcome animation
 
-First visit of a session: a full-screen, 9-second motion piece plays before the site. It tells
+First visit of a session: a full-screen, roughly 17-second motion piece plays before the site. It tells
 the client journey in five scenes (Idea, Plan, Design, Build, Launch), then a curtain opens on
 the page. It lives in `components/Intro.tsx` and `Intro.module.css` (pure CSS, no libraries).
 
@@ -177,9 +177,10 @@ the page. It lives in `components/Intro.tsx` and `Intro.module.css` (pure CSS, n
 
 ## Mouse effects
 
-On devices with a mouse (not touch, not reduced motion): a tiny paper plane trails the cursor
-leaving a faint vapour trail (`components/Contrail.tsx`), and the runway scene banks slightly
-with the cursor, like a cockpit (`lib/runway.ts`).
+On devices with a mouse (not touch, not reduced motion): the cursor is a wireframe paper plane
+whose nose sits on the pointer, with a faint vapour trail streaming from its tail
+(`components/Contrail.tsx`), and the runway scene banks slightly with the cursor, like a cockpit
+(`lib/runway.ts`). The normal cursor is hidden only after the first mouse movement.
 
 ## The hero scene
 

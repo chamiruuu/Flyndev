@@ -85,3 +85,9 @@ body {
 html[data-intro="seen"] .intro-root {
   display: none !important;
 }
+
+/* Mouse devices: the paper plane is the cursor (set by Contrail after the first mouse move) */
+html[data-cursor="plane"],
+html[data-cursor="plane"] * {
+  cursor: none !important;
+}

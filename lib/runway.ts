@@ -100,6 +100,7 @@ function pointsMaterial(
     vertexShader: /* glsl */ `
       ${SCROLL}
       uniform float uFocal;
+      uniform float uPx;
       uniform float uSize;
       uniform float uStrength;
       attribute float aPhase;
@@ -110,8 +111,12 @@ function pointsMaterial(
         vec3 p = vec3(position.x, position.y, -d);
         vec4 clip = projectionMatrix * viewMatrix * vec4(p, 1.0);
         gl_Position = clip;
-        gl_PointSize = clamp(uSize * uFocal / d, 1.0, 7.0);
-        vAlpha = distanceFade(d) * bottomFade(clip) * uStrength;
+        float px = uSize * uFocal / d;
+        float minPx = 1.8 * uPx;
+        gl_PointSize = clamp(px, minPx, 7.0 * uPx);
+        // points smaller than a pixel would shimmer; fade them out smoothly instead
+        float tiny = smoothstep(0.35 * minPx, minPx, px);
+        vAlpha = distanceFade(d) * bottomFade(clip) * uStrength * tiny;
       }
     `,
     fragmentShader: POINT_FRAGMENT,
@@ -172,6 +177,7 @@ export async function createRunway(
     uOffset: { value: 0 },
     uLen: { value: LENGTH },
     uFocal: { value: 800 },
+    uPx: { value: 1 },
   };
 
   // ----- horizon glow (full-screen quad) -----
@@ -332,14 +338,19 @@ export async function createRunway(
   await yieldToMain();
 
   // ----- sizing -----
-  const maxDpr = Math.min(window.devicePixelRatio || 1, 1.25);
+  let portrait = false;
+  let dpr = 1.25;
   const resize = () => {
     const w = Math.max(canvas.clientWidth, 1);
     const h = Math.max(canvas.clientHeight, 1);
-    renderer.setPixelRatio(maxDpr);
+    portrait = w / h < 0.9;
+    // phones get a sharper canvas (up to 2x) so the runway lights stay crisp; desktop stays light
+    dpr = Math.min(window.devicePixelRatio || 1, portrait ? 2 : 1.25);
+    renderer.setPixelRatio(dpr);
     renderer.setSize(w, h, false);
     const vp = vanishingPoint(w, h);
-    glow.visible = w / h >= 0.9; // portrait/phone: no orange glow, only the faint runway lights
+    glow.visible = !portrait; // portrait/phone: no orange glow, only the faint runway lights
+    bars.visible = !portrait; // and no moving cross lines, which shimmer on small screens
     camera.aspect = w / h;
     camera.setViewOffset(w, h, (0.5 - vp.x) * w, (0.5 - vp.y) * h, w, h);
     camera.updateProjectionMatrix();
@@ -348,7 +359,8 @@ export async function createRunway(
     glowUniforms.uQuadHalf.value.set(0.95, 0.55);
     glowUniforms.uAspect.value = w / h;
     // focal length in drawing-buffer pixels, for perspective point sizes
-    shared.uFocal.value = (h * maxDpr) / (2 * Math.tan((FOV * Math.PI) / 360));
+    shared.uFocal.value = (h * dpr) / (2 * Math.tan((FOV * Math.PI) / 360));
+    shared.uPx.value = dpr;
   };
   resize();
   const observer = new ResizeObserver(resize);
@@ -372,7 +384,7 @@ export async function createRunway(
   const frame = (now: number) => {
     if (disposed) return;
     const t = (now - start) / 1000;
-    shared.uOffset.value = (t * SPEED) % (LENGTH * 4);
+    shared.uOffset.value = (t * SPEED * (portrait ? 0.7 : 1)) % (LENGTH * 4);
     glowUniforms.uTime.value = t;
     if (canTilt) {
       // ease toward the cursor so the motion is soft, then bank a few degrees at most

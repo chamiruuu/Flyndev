@@ -18,7 +18,7 @@
   background: var(--bg);
   color: var(--ink);
   clip-path: inset(0 0 var(--reveal) 0);
-  animation: introOut 0.95s cubic-bezier(0.76, 0, 0.24, 1) 18.6s both;
+  animation: introOut 0.95s cubic-bezier(0.76, 0, 0.24, 1) 17.7s both;
 }
 
 .root::before {
@@ -76,7 +76,7 @@
     transparent calc(100% - var(--reveal))
   );
   opacity: 0;
-  animation: edgeOn 0.95s linear 18.6s both;
+  animation: edgeOn 0.95s linear 17.7s both;
 }
 
 @keyframes edgeOn {

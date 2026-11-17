@@ -98,9 +98,12 @@ export function Intro({ steps }: Props) {
   const fadeOutAudio = useCallback(() => {
     const audio = audioRef.current;
     if (!audio || audio.paused) return;
+    // fade over about 0.4 s, then stop (some phones ignore volume changes, so also stop on a count)
+    let steps = 0;
     const timer = setInterval(() => {
+      steps += 1;
       audio.volume = Math.max(0, audio.volume - 0.1);
-      if (audio.volume <= 0.01) {
+      if (steps >= 10 || audio.volume <= 0.01) {
         clearInterval(timer);
         audio.pause();
       }
@@ -173,7 +176,7 @@ export function Intro({ steps }: Props) {
       root.dataset.done = "true";
       if (app) app.inert = false;
       document.documentElement.dataset.intro = "seen";
-      audio?.pause();
+      fadeOutAudio(); // let the voice finish its last word instead of cutting it
       window.dispatchEvent(new Event(INTRO_DONE_EVENT));
     };
 
@@ -240,7 +243,7 @@ export function Intro({ steps }: Props) {
       audio?.pause();
       if (app) app.inert = false;
     };
-  }, [skip]);
+  }, [skip, fadeOutAudio]);
 
   const label = (i: number) => steps[i]?.label ?? "";
   const note = (i: number) => steps[i]?.note ?? "";

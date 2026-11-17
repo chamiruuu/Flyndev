@@ -1,5 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
+import { organizationJsonLd, seo } from "@/lib/seo";
+import { site } from "@/lib/site";
 import "./globals.css";
 
 const inter = Inter({
@@ -16,11 +18,26 @@ const jetbrainsMono = JetBrains_Mono({
   display: "swap",
 });
 
-// Placeholder metadata for the scaffold. Full SEO, OG and JSON-LD land in phase 5.
 export const metadata: Metadata = {
-  title: "Flyndev — Web, Systems & Automation | Coming Soon",
-  description:
-    "Flyndev builds websites, systems and automation for small businesses, startups and founders. Based in Colombo, working worldwide. Full site coming soon.",
+  metadataBase: new URL(site.url),
+  title: seo.title,
+  description: seo.description,
+  applicationName: site.name,
+  alternates: { canonical: site.url },
+  robots: { index: true, follow: true },
+  openGraph: {
+    type: "website",
+    url: site.url,
+    siteName: site.name,
+    title: seo.title,
+    description: seo.description,
+    locale: "en_US",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: seo.title,
+    description: seo.description,
+  },
 };
 
 export const viewport: Viewport = {
@@ -31,7 +48,16 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${inter.variable} ${jetbrainsMono.variable}`}>
-      <body>{children}</body>
+      <body>
+        {children}
+        <script
+          type="application/ld+json"
+          // "<" is escaped so the JSON can never close the script tag early
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(organizationJsonLd).replace(/</g, "\\u003c"),
+          }}
+        />
+      </body>
     </html>
   );
 }

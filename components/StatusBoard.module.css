@@ -1,5 +1,13 @@
 .root {
-  --tw: clamp(11px, calc((100vw - 2 * var(--gutter) - 48px) / 17.6), 24px);
+  /* fit the widest status between the page margins: screen - margins - box chrome - tile gaps */
+  --tw: clamp(
+    9px,
+    calc(
+      (100vw - 2 * var(--gutter) - 46px - (var(--cells, 18) - 1) * 2px) /
+        var(--units, 17.55)
+    ),
+    24px
+  );
   --th: calc(var(--tw) * 1.5);
 
   display: grid;
@@ -23,6 +31,13 @@
   background: #0a0a0a;
 }
 
+.housing::after {
+  /* mirrors the status light on the left, so the letters are exactly centered in the box */
+  content: "";
+  flex: none;
+  width: 6px;
+}
+
 .led {
   flex: none;
   width: 6px;
@@ -31,6 +46,20 @@
   background: var(--accent);
   box-shadow: 0 0 8px 1px color-mix(in srgb, var(--accent) 70%, transparent);
   animation: pulse 2.4s ease-in-out infinite;
+}
+
+.stack {
+  display: grid;
+  justify-items: center;
+}
+
+/* the live board and the invisible sizer share one grid cell */
+.stack > * {
+  grid-area: 1 / 1;
+}
+
+.sizer {
+  visibility: hidden;
 }
 
 .board {

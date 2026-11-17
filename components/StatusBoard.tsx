@@ -1,6 +1,12 @@
 "use client";
 
-import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  useSyncExternalStore,
+  type CSSProperties,
+} from "react";
 import styles from "./StatusBoard.module.css";
 
 const CHARSET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
@@ -16,6 +22,9 @@ const toCells = (text: string): Cell[] =>
   [...text.toUpperCase()].map((ch) =>
     ch === " " ? { kind: "gap" } : { kind: "tile", ch, live: false },
   );
+/** How much room a status needs: each letter is one tile, each space a narrow gap. */
+const widthOf = (text: string) =>
+  [...text].reduce((total, ch) => total + (ch === " " ? 0.55 : 1), 0);
 const randomChar = () => CHARSET[Math.floor(Math.random() * CHARSET.length)];
 
 const REDUCED_QUERY = "(prefers-reduced-motion: reduce)";
@@ -103,25 +112,53 @@ export function StatusBoard({ statuses }: Props) {
     };
   }, [reduced, statuses]);
 
+  const widest = statuses.reduce(
+    (a, b) => (widthOf(b) > widthOf(a) ? b : a),
+    statuses[0] ?? "",
+  );
+  const widestCells = toCells(widest);
+  // the tile size is worked out in CSS from these, so the widest status always fits the screen
+  const sizing = {
+    "--units": widthOf(widest),
+    "--cells": widestCells.length,
+  } as CSSProperties;
+
   // With reduced motion on (or before hydration) always show the first status.
   const shownIndex = reduced ? 0 : index;
   const shownCells = reduced ? toCells(statuses[0] ?? "") : cells;
 
   return (
-    <div className={styles.root}>
+    <div className={styles.root} style={sizing}>
       <span className={`label ${styles.title}`}>Status</span>
       <div className={styles.housing}>
         <span className={styles.led} aria-hidden="true" />
-        <div className={styles.board} aria-hidden="true">
-          {shownCells.map((cell, i) =>
-            cell.kind === "gap" ? (
-              <span key={i} className={styles.gap} />
-            ) : (
-              <span key={i} className={`${styles.tile} ${cell.live ? styles.live : ""}`}>
-                {cell.ch}
-              </span>
-            ),
-          )}
+        <div className={styles.stack}>
+          {/* invisible: reserves the width of the widest status, so the box never resizes */}
+          <div className={`${styles.board} ${styles.sizer}`} aria-hidden="true">
+            {widestCells.map((cell, i) =>
+              cell.kind === "gap" ? (
+                <span key={i} className={styles.gap} />
+              ) : (
+                <span key={i} className={styles.tile}>
+                  {cell.ch}
+                </span>
+              ),
+            )}
+          </div>
+          <div className={styles.board} aria-hidden="true">
+            {shownCells.map((cell, i) =>
+              cell.kind === "gap" ? (
+                <span key={i} className={styles.gap} />
+              ) : (
+                <span
+                  key={i}
+                  className={`${styles.tile} ${cell.live ? styles.live : ""}`}
+                >
+                  {cell.ch}
+                </span>
+              ),
+            )}
+          </div>
         </div>
       </div>
       <span className="visually-hidden" aria-live="polite" aria-atomic="true">

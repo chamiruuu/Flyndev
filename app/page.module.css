@@ -42,7 +42,7 @@
   align-items: center;
   padding-inline: var(--gutter);
   /* mobile: leave room under the content for the horizon band */
-  padding-block: 24px calc(28vw + 12px);
+  padding-block: 24px calc(28vw + 36px);
 }
 
 .content {

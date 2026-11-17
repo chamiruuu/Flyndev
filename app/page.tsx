@@ -15,7 +15,7 @@ export default function Home() {
       <header className={styles.topbar}>
         <Image
           src="/brand/f-mark.png"
-          alt="Flyndev"
+          alt=""
           width={160}
           height={86}
           className={styles.fmark}

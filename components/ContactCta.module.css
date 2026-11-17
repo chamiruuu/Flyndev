@@ -44,7 +44,7 @@
   min-height: 44px;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 0.35em;
   color: var(--muted);
   font-size: 15px;

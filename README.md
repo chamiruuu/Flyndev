@@ -165,8 +165,8 @@ scripts/        dev-only brand asset generator
 ## The welcome animation
 
 First visit of a session: a full-screen, roughly 17-second motion piece plays before the site. It tells
-the client journey in five scenes (Idea, Plan, Design, Build, Launch), then a curtain opens on
-the page. It lives in `components/Intro.tsx` and `Intro.module.css` (pure CSS, no libraries).
+the client journey in five scenes (Idea, Plan, Design, Build, Launch; the last is a 2D plane
+taking off), then a curtain opens on the page. It lives in `components/Intro.tsx` and `Intro.module.css` (pure CSS, no libraries).
 
 - Visitors can skip it with the **Skip intro** button or **Esc**.
 - It plays once per visit (tab session), never with reduced motion, and never without JS.

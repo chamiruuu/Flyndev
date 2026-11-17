@@ -213,8 +213,12 @@ export async function createRunway(
           // wide soft bloom around the vanishing point, stronger just above the ground
           float bloom = exp(-dot(d * vec2(0.9, 2.4), d * vec2(0.9, 2.4)) * 9.0);
           // thin bright horizon line
-          float line = exp(-pow(d.y * 150.0, 2.0)) * exp(-pow(d.x * 3.6, 2.0));
-          float a = (bloom * 0.16 + line * 0.42) * breathe;
+          // measure the line's length across the screen (not in aspect-corrected units), and fade
+          // everything out toward the left and right edges so there is never a hard cut
+          float across = (vUv.x - uVP.x) * 2.2;
+          float line = exp(-pow(d.y * 150.0, 2.0)) * exp(-across * across);
+          float edge = smoothstep(0.0, 0.3, vUv.x) * smoothstep(1.0, 0.7, vUv.x);
+          float a = (bloom * 0.16 + line * 0.42) * breathe * edge;
           gl_FragColor = vec4(uColor, a);
         }
       `,

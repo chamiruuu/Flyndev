@@ -69,22 +69,6 @@ const CODE: [number, number, string][] = [
   [0, 76, "i"],
   [0, 38, "a"],
 ];
-const SPEED: [number, number, number][] = [
-  [91.8, 84.8, 1.2],
-  [173.0, 77.3, 1.245],
-  [101.3, 87.0, 1.29],
-  [45.8, 81.0, 1.335],
-  [122.3, 103.4, 1.38],
-  [30.2, 64.3, 1.425],
-  [29.6, 104.8, 1.47],
-  [133.3, 43.4, 1.515],
-  [182.9, 117.2, 1.56],
-  [126.5, 89.2, 1.605],
-  [41.1, 41.2, 1.65],
-  [104.9, 44.8, 1.695],
-  [46.7, 59.4, 1.74],
-  [19.2, 77.1, 1.785],
-];
 
 function Word({ text }: { text: string }) {
   return (
@@ -105,13 +89,17 @@ function Word({ text }: { text: string }) {
  */
 export function Intro({ steps }: Props) {
   const rootRef = useRef<HTMLDivElement>(null);
+  const barRef = useRef<SVGRectElement>(null);
+  const pctRef = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
     const root = rootRef.current;
     if (!root) return;
     const app = document.querySelector<HTMLElement>("[data-app]");
 
+    let stopCounter = () => {};
     const finish = () => {
+      stopCounter();
       root.dataset.done = "true";
       if (app) app.inert = false;
       document.documentElement.dataset.intro = "seen";
@@ -144,7 +132,32 @@ export function Intro({ steps }: Props) {
     window.addEventListener("keydown", onKey);
     const safety = setTimeout(finish, 22000); // never trap the page behind the overlay
 
+    // The 0 to 100% counter reads the progress bar's real width every frame, so the number
+    // and the bar always agree (and it works in every browser, with no CSS counter tricks).
+    const bar = barRef.current;
+    const pct = pctRef.current;
+    let raf = 0;
+    let shown = -1;
+    const tick = () => {
+      if (bar && pct) {
+        const m = getComputedStyle(bar).transform;
+        const a = m && m !== "none" ? parseFloat(m.slice(m.indexOf("(") + 1)) : 0;
+        const v = Math.max(
+          0,
+          Math.min(100, Math.round((Number.isFinite(a) ? a : 0) * 100)),
+        );
+        if (v !== shown) {
+          shown = v;
+          pct.textContent = `${v}%`;
+        }
+      }
+      raf = requestAnimationFrame(tick);
+      stopCounter = () => cancelAnimationFrame(raf);
+    };
+    raf = requestAnimationFrame(tick);
+
     return () => {
+      cancelAnimationFrame(raf);
       clearTimeout(safety);
       root.removeEventListener("animationend", onEnd);
       window.removeEventListener("keydown", onKey);
@@ -529,6 +542,7 @@ export function Intro({ steps }: Props) {
               rx={2}
             />
             <rect
+              ref={barRef}
               className={styles.fillBar}
               x={14}
               y={182}
@@ -538,11 +552,14 @@ export function Intro({ steps }: Props) {
             />
           </svg>
           <p className={styles.caption}>
-            {note(3)} <span className={styles.pct} />
+            {note(3)}{" "}
+            <span ref={pctRef} className={styles.pct}>
+              0%
+            </span>
           </p>
         </section>
 
-        {/* 5 · LAUNCH */}
+        {/* 5 · LAUNCH: a plane takes off */}
         <section
           className={`${styles.scene} ${styles.sLast} ${styles.s4}`}
           style={scene(4)}
@@ -558,41 +575,200 @@ export function Intro({ steps }: Props) {
               priority
             />
           </div>
-          <div className={styles.countdown}>
-            <span className={styles.cd3}>3</span>
-            <span className={styles.cd2}>2</span>
-            <span className={styles.cd1}>1</span>
-          </div>
           <svg className={styles.art} viewBox="0 0 300 200" fill="none">
             <defs>
               <linearGradient id="introStreak" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0" stopColor="#f6efe7" stopOpacity="0" />
+                <stop offset="1" stopColor="#f6efe7" stopOpacity="0.8" />
+              </linearGradient>
+              <linearGradient
+                id="introTrail"
+                gradientUnits="userSpaceOnUse"
+                x1="128"
+                y1="146"
+                x2="296"
+                y2="12"
+              >
                 <stop offset="0" stopColor="#fd5f00" stopOpacity="0" />
+                <stop offset="0.35" stopColor="#fd5f00" stopOpacity="0.9" />
                 <stop offset="1" stopColor="#f6efe7" stopOpacity="0.9" />
               </linearGradient>
             </defs>
-            {SPEED.map(([y, w, d], k) => (
-              <rect
-                key={k}
-                className={styles.streak}
-                x={0}
-                y={y}
-                width={w}
-                height={1}
-                fill="url(#introStreak)"
-                style={css({ "--d": `${(2.6 + (d - 1.2)).toFixed(2)}s` })}
-              />
-            ))}
-            <circle className={styles.shock} cx={150} cy={100} r={6} />
+            <rect
+              className={styles.streak}
+              x={0}
+              y={26}
+              width={60}
+              height={1}
+              fill="url(#introStreak)"
+              style={css({ "--d": "1.0s" })}
+            />
+            <rect
+              className={styles.streak}
+              x={0}
+              y={40}
+              width={90}
+              height={1}
+              fill="url(#introStreak)"
+              style={css({ "--d": "1.25s" })}
+            />
+            <rect
+              className={styles.streak}
+              x={0}
+              y={54}
+              width={70}
+              height={1}
+              fill="url(#introStreak)"
+              style={css({ "--d": "1.5s" })}
+            />
+            <rect
+              className={styles.streak}
+              x={0}
+              y={68}
+              width={100}
+              height={1}
+              fill="url(#introStreak)"
+              style={css({ "--d": "1.15s" })}
+            />
+            <rect
+              className={styles.streak}
+              x={0}
+              y={82}
+              width={60}
+              height={1}
+              fill="url(#introStreak)"
+              style={css({ "--d": "1.7s" })}
+            />
+            <rect
+              className={styles.streak}
+              x={0}
+              y={96}
+              width={84}
+              height={1}
+              fill="url(#introStreak)"
+              style={css({ "--d": "1.4s" })}
+            />
+            <rect
+              className={styles.streak}
+              x={0}
+              y={34}
+              width={50}
+              height={1}
+              fill="url(#introStreak)"
+              style={css({ "--d": "1.9s" })}
+            />
+            <rect
+              className={styles.streak}
+              x={0}
+              y={112}
+              width={76}
+              height={1}
+              fill="url(#introStreak)"
+              style={css({ "--d": "1.6s" })}
+            />
+            <line className={styles.runway} x1={0} y1={152} x2={300} y2={152} />
+            <line className={styles.runDash} x1={-20} y1={158} x2={340} y2={158} />
+            <circle
+              className={styles.runLight}
+              cx={16}
+              cy={160}
+              r={1.4}
+              style={css({ "--d": "0.2s" })}
+            />
+            <circle
+              className={styles.runLight}
+              cx={44}
+              cy={160}
+              r={1.4}
+              style={css({ "--d": "0.27s" })}
+            />
+            <circle
+              className={styles.runLight}
+              cx={72}
+              cy={160}
+              r={1.4}
+              style={css({ "--d": "0.34s" })}
+            />
+            <circle
+              className={styles.runLight}
+              cx={100}
+              cy={160}
+              r={1.4}
+              style={css({ "--d": "0.41s" })}
+            />
+            <circle
+              className={styles.runLight}
+              cx={128}
+              cy={160}
+              r={1.4}
+              style={css({ "--d": "0.48s" })}
+            />
+            <circle
+              className={styles.runLight}
+              cx={156}
+              cy={160}
+              r={1.4}
+              style={css({ "--d": "0.55s" })}
+            />
+            <circle
+              className={styles.runLight}
+              cx={184}
+              cy={160}
+              r={1.4}
+              style={css({ "--d": "0.62s" })}
+            />
+            <circle
+              className={styles.runLight}
+              cx={212}
+              cy={160}
+              r={1.4}
+              style={css({ "--d": "0.69s" })}
+            />
+            <circle
+              className={styles.runLight}
+              cx={240}
+              cy={160}
+              r={1.4}
+              style={css({ "--d": "0.76s" })}
+            />
+            <circle
+              className={styles.runLight}
+              cx={268}
+              cy={160}
+              r={1.4}
+              style={css({ "--d": "0.83s" })}
+            />
+            <circle
+              className={styles.runLight}
+              cx={296}
+              cy={160}
+              r={1.4}
+              style={css({ "--d": "0.9s" })}
+            />
             <path
               className={styles.climb}
-              d="M20 172 C110 172 160 150 208 96 C256 42 262 36 286 22"
+              d="M128 146 C186 146 238 96 296 12"
               pathLength={1}
             />
             <g className={styles.planeLaunch}>
-              <path d="M7 0 L-5 -4.2 L-2.5 0 L-5 4.2Z" className={styles.planeShape} />
+              {/* side view, nose to the right */}
+              <path className={styles.planeWing} d="M-4 1 L-15 10.5 L-8 10.5 L10 2 Z" />
+              <path
+                className={styles.planeBody}
+                d="M-20 -1 C-20 -4.2 -12 -6 2 -6 L14 -5 C20 -4 24 -2 24 0 C24 2 20 4.2 12 4.2 L-14 4.2 C-19 4.2 -20 2 -20 -1 Z"
+              />
+              <path
+                className={styles.planeBody}
+                d="M-19 -2.5 L-27 -13 L-19 -13 L-9 -5 Z"
+              />
+              <circle className={styles.planeWin} cx={10} cy={-1.6} r={1} />
+              <circle className={styles.planeWin} cx={5} cy={-1.8} r={1} />
+              <circle className={styles.planeWin} cx={0} cy={-1.8} r={1} />
+              <circle className={styles.planeWin} cx={-5} cy={-1.8} r={1} />
+              <circle className={styles.wheel} cx={-7} cy={6.4} r={2} />
+              <circle className={styles.wheel} cx={11} cy={6.4} r={2} />
             </g>
           </svg>
-          <i className={styles.flash} />
           <p className={styles.caption}>{note(4)}</p>
         </section>
       </div>

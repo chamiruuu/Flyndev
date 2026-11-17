@@ -9,8 +9,9 @@
   position: relative;
   display: grid;
   grid-template-rows: 1fr;
-  min-height: 100vh;
-  min-height: 100dvh;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
   padding-inline: var(--gutter);
   isolation: isolate;
 }
@@ -208,5 +209,21 @@
 
   .meta {
     margin-top: 0;
+  }
+}
+
+/* tiny windows (for example a phone held sideways): trim a little more so nothing is cut off */
+@media (max-height: 340px) {
+  .main {
+    padding-block: 6px;
+  }
+
+  .wordmark {
+    width: min(100%, 240px);
+    margin-bottom: 6px;
+  }
+
+  .copy {
+    display: none;
   }
 }

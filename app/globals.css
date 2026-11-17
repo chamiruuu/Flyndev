@@ -23,15 +23,20 @@
 }
 
 html {
+  height: 100%;
+  overflow: hidden; /* a static page: nothing scrolls */
+  overscroll-behavior: none;
   background: var(--bg);
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
 }
 
 body {
+  position: fixed; /* also stops rubber-band scrolling on phones */
+  inset: 0;
+  width: 100%;
   margin: 0;
-  min-height: 100vh;
-  min-height: 100dvh;
+  overflow: hidden;
   background-color: var(--bg);
   /* Very faint dot grid: 1px dots, 32px spacing, ink at ~6% */
   background-image: radial-gradient(
@@ -84,10 +89,4 @@ body {
 /* The welcome animation is not replayed within the same visit (set by a script in the layout) */
 html[data-intro="seen"] .intro-root {
   display: none !important;
-}
-
-/* Mouse devices: the paper plane is the cursor (set by Contrail after the first mouse move) */
-html[data-cursor="plane"],
-html[data-cursor="plane"] * {
-  cursor: none !important;
 }

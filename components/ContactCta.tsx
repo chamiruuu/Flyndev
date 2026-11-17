@@ -6,13 +6,18 @@ export function ContactCta() {
 
   return (
     <div className={styles.cta}>
-      <a className={styles.button} href={mailto}>
+      <a
+        className={`${styles.button} cursor-target`}
+        data-cursor-label="Email us"
+        href={mailto}
+      >
         Start a project <span aria-hidden="true">→</span>
       </a>
       <p className={styles.note}>
         Follow the build{" "}
         <a
-          className={styles.handle}
+          className={`${styles.handle} cursor-target`}
+          data-cursor-label="Instagram"
           href={`https://instagram.com/${site.instagram}`}
           target="_blank"
           rel="noopener"

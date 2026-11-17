@@ -184,12 +184,17 @@ audio together. They can also enter without sound, and toggle sound while it pla
 The script, exact timestamps and an AI-voice prompt are in `docs/intro-voiceover.md`. To go live
 with the real voice, replace the MP3 (same name, about 17 seconds). Nothing else changes.
 
-## Mouse effects
+## Cursor and scrolling
 
-On devices with a mouse (not touch, not reduced motion): the cursor is a wireframe paper plane
-whose nose sits on the pointer, with a faint vapour trail streaming from its tail
-(`components/Contrail.tsx`), and the runway scene banks slightly with the cursor, like a cockpit
-(`lib/runway.ts`). The normal cursor is hidden only after the first mouse movement.
+- **Cursor:** on devices with a mouse, the cursor is [React Bits' TargetCursor](https://reactbits.dev)
+  (`components/TargetCursor.tsx`, ported to TypeScript): a spinning reticle that locks its brackets
+  onto anything with the `cursor-target` class. Add `data-cursor-label="..."` to show a label.
+  Currently the call-to-action button, the Instagram handle and the intro buttons are targets.
+  Touch devices keep their normal behaviour. Props (spin speed, colours and so on) are set where
+  `<TargetCursor />` is rendered in `app/page.tsx`.
+- **Runway tilt:** the 3D runway also banks slightly with the mouse, like a cockpit (`lib/runway.ts`).
+- **No scrolling:** the page is a fixed, static screen. `html` and `body` do not scroll, and the
+  layout is built to fit every screen size without scrolling.
 
 ## The hero scene
 

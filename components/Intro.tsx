@@ -262,14 +262,20 @@ export function Intro({ steps }: Props) {
         {sound !== "missing" && (
           <button
             type="button"
-            className={`${styles.ctl} ${styles.soundBtn}`}
+            className={`${styles.ctl} ${styles.soundBtn} cursor-target`}
+            data-cursor-label="Sound"
             aria-pressed={sound === "on"}
             onClick={toggleSound}
           >
             Sound {sound === "on" ? "on" : "off"}
           </button>
         )}
-        <button type="button" className={styles.ctl} onClick={skip}>
+        <button
+          type="button"
+          className={`${styles.ctl} cursor-target`}
+          data-cursor-label="Skip"
+          onClick={skip}
+        >
           Skip intro
         </button>
       </div>
@@ -287,12 +293,17 @@ export function Intro({ steps }: Props) {
         <p className={`label ${styles.gateLabel}`}>The journey with Flyndev</p>
         <button
           type="button"
-          className={styles.enter}
+          className={`${styles.enter} cursor-target`}
+          data-cursor-label="Enter"
           onClick={() => begin(sound !== "missing")}
         >
           Enter with sound
         </button>
-        <button type="button" className={styles.enterQuiet} onClick={() => begin(false)}>
+        <button
+          type="button"
+          className={`${styles.enterQuiet} cursor-target`}
+          onClick={() => begin(false)}
+        >
           Enter without sound
         </button>
       </div>

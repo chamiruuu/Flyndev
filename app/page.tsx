@@ -1,10 +1,10 @@
 import Image from "next/image";
 import { ContactCta } from "@/components/ContactCta";
-import { Contrail } from "@/components/Contrail";
 import { Intro } from "@/components/Intro";
 import { LocalClock } from "@/components/LocalClock";
 import { Runway } from "@/components/Runway";
 import { StatusBoard } from "@/components/StatusBoard";
+import TargetCursor from "@/components/TargetCursor";
 import { site } from "@/lib/site";
 import styles from "./page.module.css";
 
@@ -14,7 +14,7 @@ export default function Home() {
   return (
     <>
       <Intro steps={site.journey} />
-      <Contrail />
+      <TargetCursor spinDuration={2} hideDefaultCursor parallaxOn />
       <div className={styles.page} data-app>
         <Runway />
 

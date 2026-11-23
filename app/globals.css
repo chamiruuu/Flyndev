@@ -5,7 +5,7 @@
   --muted: #8c857e; /* 5.6:1 on --bg */
   --line: #1e1e1e;
   --tile: #141414;
-  --accent: #fd5f00;
+  --accent: #f4511e;
 
   --font-body: var(--font-inter), system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-label: var(--font-jetbrains-mono), ui-monospace, "SF Mono", Menlo, monospace;

@@ -29,10 +29,10 @@ export default function Home() {
             </p>
 
             <Image
-              src="/brand/wordmark.png"
+              src="/brand/logo.svg"
               alt="Flyndev"
-              width={1280}
-              height={151}
+              width={1000}
+              height={96}
               className={styles.wordmark}
               priority
             />

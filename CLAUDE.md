@@ -63,8 +63,12 @@ Next.js (App Router, static export) + TypeScript + CSS Modules. Three.js for the
 - Playwright is available globally (`NODE_PATH=$(npm root -g)`). Step animations to exact times with
   `document.getAnimations()` for repeatable screenshots.
 
+## Brand
+
+- Logo is an SVG (`public/brand/logo.svg`). Brand colours: black and orange **#F4511E** (`--accent`). On the dark
+  page the black letters are drawn cream; the orange wing stays. Original is in `assets/brand-src/`.
+
 ## Open items
 
-- Real SVG logo (current wordmark and F mark are PNGs cut from the brand board).
 - Final contact email (currently the Gmail address in `lib/site.ts`).
 - Instagram profile `sameAs` entry in the structured data: confirm the account is live.

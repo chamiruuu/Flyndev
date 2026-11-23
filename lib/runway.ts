@@ -24,7 +24,7 @@ import {
 } from "three";
 
 // Brand colours as raw sRGB (the shaders are unmanaged, so what we write is what you see).
-const ACCENT = new Vector3(253 / 255, 95 / 255, 0);
+const ACCENT = new Vector3(244 / 255, 81 / 255, 30 / 255);
 const CREAM = new Vector3(246 / 255, 239 / 255, 231 / 255);
 
 const FOV = 55;

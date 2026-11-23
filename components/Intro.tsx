@@ -323,8 +323,8 @@ export function Intro({ steps }: Props) {
           <svg className={styles.art} viewBox="0 0 300 200" fill="none">
             <defs>
               <linearGradient id="introHero" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0" stopColor="#fd5f00" stopOpacity="0.9" />
-                <stop offset="1" stopColor="#fd5f00" stopOpacity="0.08" />
+                <stop offset="0" stopColor="#f4511e" stopOpacity="0.9" />
+                <stop offset="1" stopColor="#f4511e" stopOpacity="0.08" />
               </linearGradient>
             </defs>
             <rect
@@ -589,10 +589,10 @@ export function Intro({ steps }: Props) {
           <div className={styles.wmRow}>
             <Image
               className={styles.wm}
-              src="/brand/wordmark.png"
+              src="/brand/logo.svg"
               alt=""
-              width={1280}
-              height={151}
+              width={1000}
+              height={96}
               priority
             />
           </div>
@@ -610,8 +610,8 @@ export function Intro({ steps }: Props) {
                 x2="296"
                 y2="12"
               >
-                <stop offset="0" stopColor="#fd5f00" stopOpacity="0" />
-                <stop offset="0.35" stopColor="#fd5f00" stopOpacity="0.9" />
+                <stop offset="0" stopColor="#f4511e" stopOpacity="0" />
+                <stop offset="0.35" stopColor="#f4511e" stopOpacity="0.9" />
                 <stop offset="1" stopColor="#f6efe7" stopOpacity="0.9" />
               </linearGradient>
             </defs>

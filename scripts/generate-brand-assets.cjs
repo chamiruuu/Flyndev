@@ -4,7 +4,7 @@
  * Dev-only tool. Playwright is NOT a project dependency; run it with a global install:
  *   NODE_PATH=$(npm root -g) node scripts/generate-brand-assets.cjs
  *
- * Inputs : assets/brand-src/f-mark-554.png, assets/brand-src/wordmark-2092.png
+ * Inputs : assets/brand-src/f-mark.svg (the F), public/brand/logo.svg (full logo)
  * Outputs: app/favicon.ico, app/icon.png, app/apple-icon.png,
  *          app/opengraph-image.png, app/twitter-image.png
  * The OG image loads JetBrains Mono from Google Fonts, so it needs network access.
@@ -15,13 +15,13 @@ const { chromium } = require("playwright");
 
 const root = path.join(__dirname, "..");
 const dataUri = (rel) =>
-  "data:image/png;base64," + fs.readFileSync(path.join(root, rel)).toString("base64");
+  "data:image/svg+xml;base64," + fs.readFileSync(path.join(root, rel)).toString("base64");
 
-const fMark = dataUri("assets/brand-src/f-mark-554.png");
-const wordmark = dataUri("assets/brand-src/wordmark-2092.png");
+const fMark = dataUri("assets/brand-src/f-mark.svg");
+const wordmark = dataUri("public/brand/logo.svg");
 
 const BG = "#050505";
-const ACCENT = "#fd5f00";
+const ACCENT = "#f4511e";
 
 /** A square tile: dark background, F-mark centred. `radius` is a fraction of the size. */
 const iconHtml = (
@@ -40,7 +40,7 @@ const ogHtml = `<!doctype html><html><head>
   .grid{position:absolute;inset:0;background-image:radial-gradient(circle,rgba(246,239,231,.06) 1px,transparent 1.5px);background-size:32px 32px}
   .circle{position:absolute;width:2600px;height:2600px;left:${1200 - 1300}px;top:488px;border-radius:50%;
     background:${BG};border:2px solid ${ACCENT};
-    box-shadow:0 0 60px 2px rgba(253,95,0,.40),0 0 160px 12px rgba(253,95,0,.16)}
+    box-shadow:0 0 60px 2px rgba(244,81,30,.40),0 0 160px 12px rgba(244,81,30,.16)}
   .wm{position:absolute;left:50%;top:196px;width:760px;transform:translateX(-50%)}
   .cap{position:absolute;left:0;right:0;top:372px;text-align:center;
     font:500 20px/1 "JetBrains Mono",monospace;letter-spacing:.14em;color:#8c857e;text-transform:uppercase}

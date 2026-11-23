@@ -45,18 +45,19 @@ The year in the small print is set when the site is built, so it updates on the 
 
 ## Brand assets
 
-| File                                            | Used for                                      |
-| ----------------------------------------------- | --------------------------------------------- |
-| `public/brand/wordmark.png`                     | Wordmark on the page (1280px wide, 2x of 640) |
-| `public/brand/f-mark.png`                       | F icon in the top bar                         |
-| `assets/brand-src/*.png`                        | Full-size originals, used to generate icons   |
-| `app/favicon.ico`, `icon.png`, `apple-icon.png` | Favicon set                                   |
-| `app/opengraph-image.png`, `twitter-image.png`  | Social share image (1200x630)                 |
+| File                                            | Used for                                                    |
+| ----------------------------------------------- | ----------------------------------------------------------- |
+| `public/brand/logo.svg`                         | The logo on the dark site (cream letters, orange `#F4511E`) |
+| `public/brand/logo-on-light.svg`                | Same logo with black letters, for white backgrounds         |
+| `assets/brand-src/flyndev-logo-original.svg`    | The original file from the designer (black + orange)        |
+| `assets/brand-src/f-mark.svg`                   | The F on its own, used to generate the icons                |
+| `app/favicon.ico`, `icon.png`, `apple-icon.png` | Favicon set                                                 |
+| `app/opengraph-image.png`, `twitter-image.png`  | Social share image (1200x630)                               |
 
-The logo files were cut from the brand board as PNGs. When you have the real **SVG**,
-drop it into `public/brand/` and swap the `<Image>` sources in `app/page.tsx`.
+Brand colours: black and orange `#F4511E` (`--accent` in `app/globals.css`). On the dark page the
+black letters are drawn cream (`--ink`) so they can be seen; the orange wing stays as is.
 
-To regenerate the icons and share image from the sources in `assets/brand-src/`:
+To regenerate the icons and share image from the logo SVGs:
 
 ```bash
 NODE_PATH=$(npm root -g) node scripts/generate-brand-assets.cjs
@@ -158,7 +159,7 @@ components/     Intro, Runway, Contrail, StatusBoard, LocalClock, ContactCta
 lib/            site.ts (content/config), seo.ts (metadata + JSON-LD),
                 runway.ts (the Three.js scene, loaded lazily)
 public/brand/   logo files used on the page
-assets/         full-size logo originals for icon generation
+assets/         original logo SVG and the F mark, for icon generation
 scripts/        dev-only brand asset generator
 ```
 
@@ -211,5 +212,3 @@ renders one still frame. Tweak the look with the constants at the top of the fil
 - In an emulated Lighthouse run with software-rendered graphics, Performance drops to roughly
   70 to 87 while the 3D scene runs (99 without WebGL). Accessibility, Best Practices and SEO
   stay at 100. Check the live site on real hardware.
-- The logo files are PNGs cut from the brand board, so they are slightly soft at large
-  sizes until the real SVG is added.

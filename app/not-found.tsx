@@ -7,10 +7,10 @@ export default function NotFound() {
     <main className={styles.page}>
       <div className={styles.content}>
         <Image
-          src="/brand/wordmark.png"
+          src="/brand/logo.svg"
           alt="Flyndev"
-          width={1280}
-          height={151}
+          width={1000}
+          height={96}
           className={styles.wordmark}
         />
         <p className={`label ${styles.code}`}>Error 404 — off course</p>

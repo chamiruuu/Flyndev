@@ -29,28 +29,33 @@ phone, tablet and desktop sizes, reduced motion, and JavaScript off.
 
 # The project
 
-Coming-soon page for **flyndev.com** (solo web, systems and automation studio in Colombo, Sri Lanka).
-Next.js (App Router, static export) + TypeScript + CSS Modules. Three.js for the hero scene.
+Website for **flyndev.com** (digital studio: web, systems and automation, Colombo, working worldwide).
+Next.js (App Router, static export) + TypeScript + CSS Modules. Three.js for the hero globe, Motion
+(`motion/react`) for crossfades and the route plane.
 
 - Commands: `npm run dev`, `npm run build` (writes `out/`), `npm run lint`, `npm run typecheck`, `npx prettier --check .`
-- Content and copy live in `lib/site.ts`; metadata in `lib/seo.ts`. See `README.md` for the full layout.
+- Content and copy live in `lib/site.ts` (anything in [brackets] is a placeholder); metadata in `lib/seo.ts`.
+- Home page sections are in `components/home/` with one stylesheet, `components/home/home.module.css`.
 - Hosting: Vercel team "Flyndev", project `flyndev`, domain registered at Porkbun (DNS points at Vercel).
   Vercel MCP tools can list deployments and read build logs. The sandbox cannot open the live domain.
 
 ## Decisions already made (do not undo without asking)
 
-- One static, centered screen. **No scrolling** (html/body are fixed). The layout must fit every size from a
-  320px-tall landscape phone to 1080p without clipping.
-- Full-screen intro (~16.7 s): five scenes (Idea, Plan, Design, Build, Launch), no sound, starts by itself,
-  once per visit (sessionStorage), Skip button and Esc. Hidden with reduced motion and without JS.
-- Status board shows **one word per page load**, the next word on each refresh (localStorage), chosen by a
-  script in `app/layout.tsx` before first paint. Words are about planes and building things, 18 chars max.
-- After the intro, the page animates in (`.rv` items, status tiles flip). Skipped with reduced motion / no JS.
+- **Production still serves the old coming-soon page.** The new home page lives on the preview branch
+  until the owner has real content and says "go live".
+- Home page design was agreed on the Claude Design canvas "Flyndev Home Page" (light theme). Sections:
+  hero (globe + visitor flight code + live clock), brand-line marquee, Who Flyndev is (boarding pass),
+  flight route (7 waypoints), recent flights, Hangar, Why Flyndev (checklist + crew note), passenger stories
+  (voice-note player), Radio (contact), footer.
+- Light theme. Fonts: Geist (body/headings), Instrument Serif italic (accent words), Geist Mono (labels).
+- No intro animation (dropped for the full site). The page scrolls.
+- Flyndev is a **team**: never write "solo", "founder" or "me".
+- Hangar is a live client portal but only for clients: no public sign-in link on the site.
+- Visitor flight code uses the browser time zone only (no location prompt, nothing sent anywhere).
+- Scroll reveals (`.rv`) are hidden only when `html.js` is set, so the page works with JavaScript off.
 - Cursor on mouse devices: React Bits `TargetCursor` (`components/TargetCursor.tsx`). Mark clickable things
   with the `cursor-target` class (and `data-cursor-label`).
-- 3D runway at the bottom centre; no orange glow on phones. Runway waits for the intro to finish.
-- Performance: Lighthouse is 99-100 with WebGL off; the sandbox renders graphics in software, so scores with
-  the 3D scene running are noisy (70-87) and not representative of real devices.
+- Globe pauses off-screen and holds still with reduced motion.
 
 ## Lessons that cost time
 
@@ -72,3 +77,5 @@ Next.js (App Router, static export) + TypeScript + CSS Modules. Three.js for the
 
 - Final contact email (currently the Gmail address in `lib/site.ts`).
 - Instagram profile `sameAs` entry in the structured data: confirm the account is live.
+- Placeholders in `lib/site.ts`: projects, client voice notes/quotes, reply time ("[one working day]").
+- Next pages to design: contact form (Radio), case studies (flight logs), others.

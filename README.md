@@ -1,10 +1,9 @@
 # Flyndev
 
-The coming-soon site for **flyndev.com**, and the base of the full Flyndev site later.
-One screen: a dark sky before take-off, a thin orange horizon, a split-flap status board.
+The website for **flyndev.com**: a light, scrolling home page with an aviation theme (globe, boarding
+pass, flight route, Hangar, passenger stories).
 
-- **Stack:** Next.js (App Router) + TypeScript, plain CSS Modules, Three.js for the hero scene.
-  No UI or animation libraries beyond that.
+- **Stack:** Next.js (App Router) + TypeScript, CSS Modules, Three.js (hero globe), Motion (`motion/react`).
 - **Output:** fully static (`output: "export"`), so it deploys to Vercel or Cloudflare Pages unchanged.
 - **Node:** 20.9 or newer (`.nvmrc` pins 22).
 
@@ -27,21 +26,14 @@ To preview the production build: `npm run build && npx serve out`.
 
 ## Editing content
 
-Almost everything you will want to change is in **`lib/site.ts`**:
-
-| Field         | Controls                                                                                                                                       |
-| ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| `email`       | The "Start a project" button, the email under it, and JSON-LD                                                                                  |
-| `instagram`   | Handle for the "Follow the build" link and JSON-LD `sameAs`                                                                                    |
-| `journey`     | The animated bottom-bar steps (IDEA → LAUNCH) and their captions                                                                               |
-| `statuses`    | Status words (about planes and building things): one is shown per page load, the next one on each refresh. Keep each at 18 characters or fewer |
-| `timezone`    | Timezone for the live clock                                                                                                                    |
-| `flightLabel` | The small mono label above the wordmark                                                                                                        |
+Almost everything you will want to change is in **`lib/site.ts`**: hero text, marquee lines, the seven
+route steps, projects ("flights"), Hangar features, the "Why Flyndev" checklist, the crew note and the
+passenger stories (add an `audio` file path under `/public` to make a voice note play real sound).
+Anything in `[brackets]` is a placeholder.
 
 Page title and description (and the JSON-LD organisation) live in `lib/seo.ts`.
-Brand colours are the tokens at the top of `app/globals.css`.
-
-The year in the small print is set when the site is built, so it updates on the next deploy.
+Colours and fonts are the tokens at the top of `app/globals.css`; section styles are in
+`components/home/home.module.css`.
 
 ## Brand assets
 

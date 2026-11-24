@@ -1,21 +1,28 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, JetBrains_Mono } from "next/font/google";
-import { INTRO_SEEN_KEY } from "@/lib/intro";
+import { Geist, Geist_Mono, Instrument_Serif } from "next/font/google";
 import { organizationJsonLd, seo } from "@/lib/seo";
 import { site } from "@/lib/site";
 import "./globals.css";
 
-const inter = Inter({
+const geist = Geist({
   subsets: ["latin"],
-  weight: ["400", "500"],
-  variable: "--font-inter",
+  weight: ["400", "500", "600"],
+  variable: "--font-geist",
   display: "swap",
 });
 
-const jetbrainsMono = JetBrains_Mono({
+const geistMono = Geist_Mono({
   subsets: ["latin"],
-  weight: ["500"],
-  variable: "--font-jetbrains-mono",
+  weight: ["400", "500"],
+  variable: "--font-geist-mono",
+  display: "swap",
+});
+
+const instrumentSerif = Instrument_Serif({
+  subsets: ["latin"],
+  weight: "400",
+  style: ["normal", "italic"],
+  variable: "--font-serif",
   display: "swap",
 });
 
@@ -42,20 +49,22 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#050505",
-  colorScheme: "dark",
+  themeColor: "#fbfaf7",
+  colorScheme: "light",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${inter.variable} ${jetbrainsMono.variable}`}>
+    <html
+      lang="en"
+      className={`${geist.variable} ${geistMono.variable} ${instrumentSerif.variable}`}
+    >
       <body>
-        {/* Runs before first paint: skip the intro if this visit already saw it, decide whether the
-            page entrance should wait for it, and pick this refresh's status word (the next one in
-            the list each time). */}
+        {/* Runs before first paint: marks that JavaScript is on, so scroll reveals can start
+            hidden. Without JavaScript everything is simply visible. */}
         <script
           dangerouslySetInnerHTML={{
-            __html: `try{var d=document.documentElement,seen=sessionStorage.getItem(${JSON.stringify(INTRO_SEEN_KEY)});if(seen)d.dataset.intro="seen";d.dataset.reveal=seen?"go":"wait";var n=${site.statuses.length},i;try{var l=parseInt(localStorage.getItem("flyndev-status"),10);i=isNaN(l)?Math.floor(Math.random()*n):(l+1)%n;localStorage.setItem("flyndev-status",String(i))}catch(e){i=Math.floor(Math.random()*n)}d.dataset.status=String(i)}catch(e){}`,
+            __html: `document.documentElement.classList.add("js")`,
           }}
         />
         {children}

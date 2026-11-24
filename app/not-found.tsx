@@ -7,7 +7,7 @@ export default function NotFound() {
     <main className={styles.page}>
       <div className={styles.content}>
         <Image
-          src="/brand/logo.svg"
+          src="/brand/logo-on-light.svg"
           alt="Flyndev"
           width={1000}
           height={96}

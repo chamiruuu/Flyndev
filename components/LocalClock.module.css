@@ -1,9 +1,0 @@
-.pending {
-  visibility: hidden;
-}
-
-@media (scripting: none) {
-  .pending {
-    display: none;
-  }
-}

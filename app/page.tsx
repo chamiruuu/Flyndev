@@ -8,6 +8,7 @@ import { Hero } from "@/components/home/Hero";
 import { Nav } from "@/components/home/Nav";
 import { Radio } from "@/components/home/Radio";
 import { RevealObserver } from "@/components/home/RevealObserver";
+import { SmoothScroll } from "@/components/home/SmoothScroll";
 import { Stories } from "@/components/home/Stories";
 import { Why } from "@/components/home/Why";
 
@@ -16,6 +17,7 @@ export default function Home() {
     <>
       <TargetCursor spinDuration={2} hideDefaultCursor parallaxOn />
       <RevealObserver />
+      <SmoothScroll />
       <Nav />
       <main>
         <Hero />

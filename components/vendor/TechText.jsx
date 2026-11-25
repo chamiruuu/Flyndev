@@ -6,6 +6,10 @@
  * - `layout` prop ({ x, baseline } in px): pins the wordmark at an exact pen position and baseline
  *   at `fontSize`, so it sits exactly on top of the real text in the headline.
  * - The canvas is decorative (aria-hidden); the real word stays in the DOM for readers and search.
+ * - `windowEvents`: the layer ignores the pointer (pointer-events: none) and listens on the window
+ *   instead, so it can cover the whole screen for dragging without blocking anything underneath.
+ *   Only a press that lands on a letter is taken over.
+ * - `labelBackground`: a plate behind the size label so specks never run through the text.
  */
 
 import { useEffect, useRef } from 'react';
@@ -70,6 +74,9 @@ const TechText = ({
   intro = 'none',
   introDuration = 2,
   guides = false,
+  windowEvents = false,
+  labelBackground = '',
+  onReady,
   className = '',
   style
 }) => {
@@ -107,7 +114,10 @@ const TechText = ({
       clickKick,
       intro,
       introDuration,
-      guides
+      guides,
+      labelBackground,
+      windowEvents,
+      onReady
     };
     wakeRef.current();
   });
@@ -144,6 +154,7 @@ const TechText = ({
     let introducing = false;
     let fontsReady = !document.fonts;
     let guideAlpha = 0;
+    let readyFired = false;
     const kicks = [];
     const press = { x: 0, y: 0, time: 0, index: -1 };
     const pointer = { x: 0, y: 0, inside: false };
@@ -528,12 +539,21 @@ const TechText = ({
       ctx.textAlign = 'left';
       ctx.textBaseline = 'bottom';
       ctx.fillStyle = accent;
-      ctx.globalAlpha = 0.62 * a;
       const label =
         moved > 1
           ? `${signed(Math.round(glyph.offset.x))}, ${signed(Math.round(-glyph.offset.y))}`
           : `${glyph.char}  ${Math.round(glyph.box.x2 - glyph.box.x1)} × ${Math.round(glyph.box.y2 - glyph.box.y1)}`;
-      ctx.fillText(label, Math.round(frame.x1), Math.round(frame.y1) - 7);
+      const lx = Math.round(frame.x1);
+      const ly = Math.round(frame.y1) - 7;
+      if (s.labelBackground) {
+        const tw = ctx.measureText(label).width;
+        ctx.globalAlpha = 0.94 * a;
+        ctx.fillStyle = s.labelBackground;
+        ctx.fillRect(lx - 4, ly - 13, Math.ceil(tw) + 8, 16);
+        ctx.fillStyle = accent;
+      }
+      ctx.globalAlpha = 0.62 * a;
+      ctx.fillText(label, lx, ly);
       ctx.globalAlpha = 1;
     };
 
@@ -847,7 +867,7 @@ const TechText = ({
         dragging >= 0 ? 'grabbing' : hovering && s.draggable ? 'grab' : hovering && s.clickKick ? 'pointer' : '';
       if (nextCursor !== cursor) {
         cursor = nextCursor;
-        container.style.cursor = nextCursor;
+        (s.windowEvents ? document.documentElement : container).style.cursor = nextCursor;
       }
 
       ctx.setTransform(1, 0, 0, 1, 0, 0);
@@ -897,6 +917,10 @@ const TechText = ({
       });
       if (presence > 0.001) drawReveal(s);
       drawFrame(s, accent);
+      if (!readyFired && glyphs.length && fontsReady) {
+        readyFired = true;
+        s.onReady?.();
+      }
 
       const settling =
         moving ||
@@ -935,8 +959,21 @@ const TechText = ({
       pointer.inside = false;
       wake();
     };
+    const inBounds = e => {
+      const rect = container.getBoundingClientRect();
+      return e.clientX >= rect.left && e.clientX <= rect.right && e.clientY >= rect.top && e.clientY <= rect.bottom;
+    };
+    const onWindowMove = e => {
+      if (dragging < 0 && !inBounds(e)) {
+        if (pointer.inside) onLeave();
+        return;
+      }
+      onMove(e);
+    };
     const onDown = e => {
       locate(e);
+      if (windowEvents && glyphAt(pointer.x, pointer.y) < 0) return;
+      if (windowEvents) e.preventDefault();
       pointer.inside = true;
       const s = settingsRef.current;
       const primary = e.pointerType !== 'mouse' || e.button === 0;
@@ -949,14 +986,16 @@ const TechText = ({
         dragging = index;
         grab.x = pointer.x - glyphs[index].offset.x;
         grab.y = pointer.y - glyphs[index].offset.y;
-        container.setPointerCapture?.(e.pointerId);
+        if (!windowEvents) container.setPointerCapture?.(e.pointerId);
+        else document.documentElement.style.userSelect = 'none';
       }
       wake();
     };
     const onUp = e => {
       if (dragging >= 0) {
         dragging = -1;
-        container.releasePointerCapture?.(e.pointerId);
+        if (!windowEvents) container.releasePointerCapture?.(e.pointerId);
+        else document.documentElement.style.userSelect = '';
         const rect = container.getBoundingClientRect();
         pointer.inside =
           e.clientX >= rect.left && e.clientX <= rect.right && e.clientY >= rect.top && e.clientY <= rect.bottom;
@@ -975,12 +1014,19 @@ const TechText = ({
       wake();
     };
 
-    container.addEventListener('pointermove', onMove, { passive: true });
-    container.addEventListener('pointerenter', onMove, { passive: true });
-    container.addEventListener('pointerdown', onDown, { passive: true });
-    container.addEventListener('pointerup', onUp, { passive: true });
-    container.addEventListener('pointercancel', onUp, { passive: true });
-    container.addEventListener('pointerleave', onLeave, { passive: true });
+    const target = windowEvents ? window : container;
+    if (windowEvents) {
+      window.addEventListener('pointermove', onWindowMove, { passive: true });
+      window.addEventListener('pointerdown', onDown, { passive: false });
+      document.documentElement.addEventListener('pointerleave', onLeave, { passive: true });
+    } else {
+      container.addEventListener('pointermove', onMove, { passive: true });
+      container.addEventListener('pointerenter', onMove, { passive: true });
+      container.addEventListener('pointerdown', onDown, { passive: true });
+      container.addEventListener('pointerleave', onLeave, { passive: true });
+    }
+    target.addEventListener('pointerup', onUp, { passive: true });
+    target.addEventListener('pointercancel', onUp, { passive: true });
     canvas.addEventListener('contextrestored', invalidateLayout);
 
     const resizeObserver = new ResizeObserver(resize);
@@ -1011,18 +1057,27 @@ const TechText = ({
       themeObserver.disconnect();
       schemeQuery?.removeEventListener?.('change', wake);
       container.style.cursor = '';
+      window.removeEventListener('pointermove', onWindowMove);
+      window.removeEventListener('pointerdown', onDown);
+      document.documentElement.removeEventListener('pointerleave', onLeave);
       container.removeEventListener('pointermove', onMove);
       container.removeEventListener('pointerenter', onMove);
       container.removeEventListener('pointerdown', onDown);
-      container.removeEventListener('pointerup', onUp);
-      container.removeEventListener('pointercancel', onUp);
       container.removeEventListener('pointerleave', onLeave);
+      target.removeEventListener('pointerup', onUp);
+      target.removeEventListener('pointercancel', onUp);
+      document.documentElement.style.userSelect = '';
       canvas.removeEventListener('contextrestored', invalidateLayout);
     };
   }, []);
 
   return (
-    <div ref={containerRef} className={`tech-text ${className}`.trim()} style={style} aria-hidden="true">
+    <div
+      ref={containerRef}
+      className={`tech-text ${className}`.trim()}
+      style={windowEvents ? { ...style, pointerEvents: 'none' } : style}
+      aria-hidden="true"
+    >
       <canvas ref={canvasRef} className="tech-text-canvas" />
     </div>
   );

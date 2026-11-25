@@ -181,18 +181,13 @@
 
 /* ============ nav ============ */
 .nav {
-  position: sticky;
-  top: 0;
-  z-index: 50;
-  background: var(--bg);
-  border-bottom: 1px solid transparent;
+  position: relative;
+  z-index: 40;
 }
 
 .navInner {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 24px;
   height: 84px;
 }
 
@@ -202,38 +197,100 @@
   width: auto;
 }
 
-.navRight {
+/* fixed "flight deck": menu + Radio us */
+.deck {
+  position: fixed;
+  top: 19px;
+  right: max(var(--pad), calc((100vw - var(--wrap)) / 2 + var(--pad)));
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.menuBtn {
   display: flex;
   align-items: center;
   gap: 10px;
-}
-
-.navLinks {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  padding: 5px;
+  height: 46px;
+  padding: 0 16px 0 14px;
+  border-radius: 999px;
   border: 1px solid var(--line);
-  border-radius: 999px;
   background: var(--paper);
-}
-
-.navLinks a {
-  padding: 9px 16px;
-  border-radius: 999px;
+  box-shadow: 0 8px 24px -14px rgb(20 20 20 / 0.35);
   font-size: 14px;
-  text-decoration: none;
-  transition: background 0.2s;
+  transition: border-color 0.2s;
 }
 
-.navLinks a:hover {
-  background: var(--panel);
+.menuBtn:hover {
+  border-color: var(--ink);
+}
+
+/* three "runway lights": centre line carries the orange beacon; opens into an X */
+.menuIcon {
+  position: relative;
+  width: 20px;
+  height: 14px;
+}
+
+.menuIcon span {
+  position: absolute;
+  left: 0;
+  height: 1.6px;
+  border-radius: 2px;
+  background: var(--ink);
+  transition:
+    transform 0.4s var(--ease),
+    opacity 0.3s,
+    width 0.4s var(--ease);
+}
+
+.menuIcon span:nth-child(1) {
+  top: 0;
+  width: 20px;
+}
+
+.menuIcon span:nth-child(2) {
+  top: 6px;
+  width: 12px;
+  background: var(--accent);
+}
+
+.menuIcon span:nth-child(3) {
+  top: 12px;
+  width: 16px;
+}
+
+.menuBtn:hover .menuIcon span:nth-child(2) {
+  width: 20px;
+}
+
+.menuOpen .menuIcon span:nth-child(1) {
+  transform: translateY(6px) rotate(45deg);
+  width: 20px;
+}
+
+.menuOpen .menuIcon span:nth-child(2) {
+  opacity: 0;
+}
+
+.menuOpen .menuIcon span:nth-child(3) {
+  transform: translateY(-6px) rotate(-45deg);
+  width: 20px;
+}
+
+.menuLabel {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
 }
 
 .navCta {
   display: flex;
   align-items: center;
   gap: 10px;
+  box-shadow: 0 8px 24px -14px rgb(20 20 20 / 0.45);
   height: 46px;
   padding: 0 8px 0 18px;
   border-radius: 999px;
@@ -248,13 +305,134 @@
   height: 30px;
 }
 
+/* departure-board menu */
+.board {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  width: min(420px, calc(100vw - 2 * var(--pad)));
+  padding: 10px;
+  border-radius: 20px;
+  background: var(--dark);
+  color: var(--cream);
+  box-shadow: 0 30px 60px -30px rgb(20 20 20 / 0.5);
+  transform-origin: top right;
+  animation: boardIn 0.35s var(--ease);
+}
+
+.board[hidden] {
+  display: none;
+}
+
+@keyframes boardIn {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.97);
+  }
+}
+
+.boardHead {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 14px 12px;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.18em;
+  color: #a8a29e;
+}
+
+.boardList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.boardList li {
+  border-top: 1px solid #262626;
+  animation: rowIn 0.4s var(--ease) both;
+  animation-delay: calc(var(--i) * 35ms);
+}
+
+@keyframes rowIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+
+.boardList a {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 13px 14px;
+  border-radius: 12px;
+  text-decoration: none;
+  transition: background 0.2s;
+}
+
+.boardList a:hover,
+.boardList a:focus-visible {
+  background: #1f1f1f;
+}
+
+.boardGate {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 28px;
+  border-radius: 6px;
+  background: #232323;
+  background-image: linear-gradient(
+    transparent 49%,
+    #0e0e0e 49%,
+    #0e0e0e 53%,
+    transparent 53%
+  );
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+
+.boardName {
+  flex: 1;
+  font-size: 17px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+
+.boardStatus,
+.boardStatusOn {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #8a847d;
+}
+
+.boardStatusOn {
+  color: #ff8a5c;
+}
+
 @media (max-width: 900px) {
-  .navLinks {
+  .navInner {
+    height: 68px;
+  }
+
+  .deck {
+    top: 11px;
+  }
+
+  .menuBtn {
+    padding: 0 14px;
+  }
+}
+
+@media (max-width: 420px) {
+  .menuLabel {
     display: none;
   }
 
-  .navInner {
-    height: 68px;
+  .navCta {
+    padding-left: 14px;
   }
 }
 
@@ -393,6 +571,8 @@
 /* hero word with the React Bits TechText effect */
 .heroWord {
   position: relative;
+  touch-action: none;
+  cursor: grab;
 }
 
 .heroWordLive {
@@ -406,11 +586,13 @@
   vertical-align: baseline;
 }
 
-.heroWordFx {
+.heroWordLayer {
   position: absolute;
-  z-index: 2;
-  pointer-events: auto;
-  color: var(--accent);
+  left: 0;
+  top: 0;
+  width: 100%;
+  z-index: 45;
+  pointer-events: none;
 }
 
 /* ticker */

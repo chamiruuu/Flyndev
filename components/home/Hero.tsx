@@ -14,18 +14,20 @@ export function Hero() {
         <Galaxy
           lightMode
           transparent
-          starColors={["#141414", "#141414", "#57534e", "#f4511e"]}
-          density={0.9}
-          glowIntensity={0.35}
-          starSize={1.1}
-          flareIntensity={0.8}
-          twinkleIntensity={0.4}
-          starSpeed={0.35}
-          rotationSpeed={0.04}
-          repulsionStrength={2.5}
+          intro={false}
+          starColors={["#a8a29e", "#c9c3ba", "#f4511e"]}
+          density={0.55}
+          layers={3}
+          glowIntensity={0.18}
+          starSize={0.7}
+          flareIntensity={0.25}
+          twinkleIntensity={0.25}
+          starSpeed={0.2}
+          rotationSpeed={0.02}
+          repulsionStrength={2}
           mouseRepulsion
-          clickWarp
-          opacity={0.75}
+          clickWarp={false}
+          opacity={0.45}
           focal={[0.72, 0.45]}
         />
       </div>

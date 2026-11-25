@@ -22,7 +22,7 @@ const instrumentSerif = Instrument_Serif({
   subsets: ["latin"],
   weight: "400",
   style: ["normal", "italic"],
-  variable: "--font-serif",
+  variable: "--font-instrument",
   display: "swap",
 });
 

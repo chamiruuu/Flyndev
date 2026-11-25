@@ -30,6 +30,12 @@ export interface TechTextProps {
   intro?: "none" | "type" | "assemble" | "metrics";
   introDuration?: number;
   guides?: boolean;
+  /** Listen on the window (layer ignores the pointer) so it can cover the whole screen. */
+  windowEvents?: boolean;
+  /** Colour of a plate drawn behind the size label. */
+  labelBackground?: string;
+  /** Called once after the first frame with the word drawn. */
+  onReady?: () => void;
   className?: string;
   style?: CSSProperties;
 }

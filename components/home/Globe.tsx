@@ -49,9 +49,11 @@ void main() {
 }`;
 
 /**
- * Final pass: ordered (Bayer) dither of the globe in ink on transparent paper, orange kept as a
- * spot colour; inside the cursor trail and click ripples the clean render shows through, with a
- * dissolving dithered edge.
+ * Final pass. The scene is drawn with colour tags (ink = land and planes, orange = routes and home,
+ * blue = ocean dots, grey = the sphere). Tags are mapped to the page palette: land, routes and planes
+ * stay crisp; the sphere is opaque paper with a soft grey ordered-dither stipple only on its shaded
+ * edge. Around the cursor (and in click ripples) everything turns into a solid orange dotted disc
+ * with a dissolving edge.
  */
 const VIEW_FRAG = /* glsl */ `
 uniform sampler2D tScene;
@@ -61,7 +63,9 @@ uniform vec2 uSize;
 uniform float uCell;
 uniform vec3 uInk;
 uniform vec3 uAccent;
-uniform float uContrast;
+uniform vec3 uPaper;
+uniform vec3 uSoft;
+uniform vec3 uOcean;
 uniform vec4 uBursts[4];
 uniform float uBurstWidth;
 uniform float uIntro;
@@ -101,40 +105,53 @@ void main() {
   vec2 cell = floor(px / uCell);
   vec2 center = (cell + 0.5) * uCell;
   vec2 cellUv = vec2(center.x / uRes.x, 1.0 - center.y / uRes.y);
-
-  vec4 src = texture2D(tScene, cellUv);
-  float a = src.a;
-  vec3 c = a > 0.001 ? src.rgb / a : vec3(1.0);
   float order = bayer(cell);
 
-  // Orange stays a flat spot colour; everything else becomes ink dots.
-  float orange = step(0.3, c.r - c.b) * step(c.g, 0.62);
-  float lum = dot(toSRGB(c), vec3(0.2126, 0.7152, 0.0722));
-  lum = clamp((lum - 0.5) * uContrast + 0.5, 0.0, 1.0);
-  float inkOn = step(order, 1.0 - lum);
-  vec4 dither = mix(vec4(uInk, 1.0) * inkOn * a, vec4(uAccent, 1.0) * a, orange);
+  vec4 src = texture2D(tScene, vUv);
+  float a = src.a;
+  if (a < 0.002) { gl_FragColor = vec4(0.0); return; }
+  vec3 c = src.rgb / a;
+  vec3 g = toSRGB(c);
+  float lum = dot(g, vec3(0.2126, 0.7152, 0.0722));
 
-  // Clean render (premultiplied) where the cursor has been.
-  vec4 clean = texture2D(tScene, vUv);
-  vec2 point = vec2(cellUv.x, 1.0 - cellUv.y) * uSize;
-  float shown = max(clamp(texture2D(tMask, cellUv).r * 1.6, 0.0, 1.0), ripple(point));
-  float rim = step(order * 0.85, shown) * (1.0 - step(order * 0.85 + 0.15, shown));
-  vec4 col = mix(dither, clean, step(order * 0.85 + 0.15, shown));
-  col = mix(col, vec4(uAccent, 1.0) * max(a, 0.0), rim * step(0.001, a));
+  float isOrange = step(0.3, g.r - g.b) * step(g.g, 0.62);
+  float isOcean = (1.0 - isOrange) * step(0.22, g.b - g.r);
+  float isInk = (1.0 - isOrange) * (1.0 - isOcean) * step(lum, 0.4);
+  float isBody = (1.0 - isOrange) * (1.0 - isOcean) * (1.0 - isInk);
+
+  // Soft stipple on the shaded edge of the sphere only (sampled per cell so it reads as dither).
+  vec4 cs = texture2D(tScene, cellUv);
+  float clum = dot(toSRGB(cs.a > 0.002 ? cs.rgb / cs.a : vec3(1.0)), vec3(0.2126, 0.7152, 0.0722));
+  float shade = clamp((0.93 - clum) * 2.4, 0.0, 0.85);
+  float stipple = isBody * step(order, shade);
+
+  vec3 col = uPaper;
+  col = mix(col, uSoft, stipple);
+  col = mix(col, uOcean, isOcean);
+  col = mix(col, uInk, isInk);
+  col = mix(col, uAccent, isOrange);
+
+  // Cursor spotlight + ripples: a solid orange dotted disc with a dissolving edge.
+  vec2 point = vec2(vUv.x, 1.0 - vUv.y) * uSize;
+  float shown = max(clamp(texture2D(tMask, vUv).r * 1.6, 0.0, 1.0), ripple(point));
+  float inside = step(order * 0.9 + 0.05, shown);
+  float fillDots = step(order, 0.34);
+  vec3 lit = mix(uPaper, uAccent, max(fillDots, max(isInk, max(isOcean, isOrange))));
+  col = mix(col, lit, inside);
 
   // Intro: cells switch on from the middle outwards.
   vec2 aspect = vec2(uRes.x / uRes.y, 1.0);
   float spread = length((cellUv - 0.5) * aspect) / length(aspect * 0.5);
   float appear = step(spread * 0.72 + bayer(cell + vec2(3.0, 5.0)) * 0.28, uIntro * 1.001);
-  col *= appear;
-  vec3 rgb = col.a > 0.0001 ? toSRGB(col.rgb / col.a) : vec3(0.0);
-  gl_FragColor = vec4(rgb * col.a, col.a);
+
+  float alpha = a * appear;
+  gl_FragColor = vec4(toSRGB(col) * alpha, alpha);
 }`;
 
 /**
  * The hero globe: dotted continents, orange routes drawn out from Colombo, small planes flying
- * them, all rendered as an ink dither on the page. Hover (or tap) to see the clean globe through
- * the dither, click for a ripple, drag to spin. Pauses off-screen; holds still with reduced motion.
+ * them, all drawn in ink on paper with a soft dithered edge. Hover (or tap) for an orange dotted spotlight that
+ * lingers as a trail, click for a ripple, drag to spin. Pauses off-screen; holds still with reduced motion.
  */
 export function Globe({ className }: { className?: string }) {
   const host = useRef<HTMLDivElement>(null);
@@ -219,6 +236,29 @@ export function Globe({ className }: { className?: string }) {
       dots.instanceMatrix.needsUpdate = true;
       globe.add(dots);
 
+      // Faint ocean dots (tagged blue, drawn soft grey) so the whole surface visibly turns.
+      const OSTEP = 4.4;
+      const ocean: [number, number, number][] = [];
+      for (let lat = -78; lat <= 78; lat += OSTEP) {
+        const dlon = OSTEP / Math.max(Math.cos(lat * D), 0.2);
+        for (let lon = -180; lon < 180; lon += dlon) {
+          if (!isLand(lat, lon)) ocean.push(toVec(lat, lon, 1.001));
+        }
+      }
+      const oceanDots = new THREE.InstancedMesh(
+        new THREE.CircleGeometry(0.0065, 8),
+        new THREE.MeshBasicMaterial({ color: 0x5a6cff }),
+        ocean.length,
+      );
+      ocean.forEach((p, i) => {
+        obj.position.set(p[0], p[1], p[2]);
+        obj.lookAt(p[0] * 2, p[1] * 2, p[2] * 2);
+        obj.updateMatrix();
+        oceanDots.setMatrixAt(i, obj.matrix);
+      });
+      oceanDots.instanceMatrix.needsUpdate = true;
+      globe.add(oceanDots);
+
       // Home marker + pulse.
       const home = new THREE.Vector3(...toVec(HOME.lat, HOME.lon, 1.004));
       const homeDot = new THREE.Mesh(
@@ -256,7 +296,7 @@ export function Globe({ className }: { className?: string }) {
           points.push(v.normalize().multiplyScalar(h));
         }
         const curve = new THREE.CatmullRomCurve3(points);
-        const geo = new THREE.TubeGeometry(curve, SEG * 2, 0.0032, 5, false);
+        const geo = new THREE.TubeGeometry(curve, SEG * 2, 0.0042, 6, false);
         geo.setDrawRange(0, 0);
         const tube = new THREE.Mesh(geo, routeMat);
         globe.add(tube);
@@ -343,7 +383,9 @@ export function Globe({ className }: { className?: string }) {
         uCell: { value: 2 },
         uInk: { value: new THREE.Color(INK) },
         uAccent: { value: new THREE.Color(ACCENT) },
-        uContrast: { value: 1.2 },
+        uPaper: { value: new THREE.Color(0xfbfaf7) },
+        uSoft: { value: new THREE.Color(0xc9c3ba) },
+        uOcean: { value: new THREE.Color(0xd6d1c9) },
         uBursts: { value: [0, 1, 2, 3].map(() => new THREE.Vector4()) },
         uBurstWidth: { value: 90 },
         uIntro: { value: 0 },
@@ -456,7 +498,7 @@ export function Globe({ className }: { className?: string }) {
         renderer.setRenderTarget(null);
         viewUniforms.uRes.value.set(W, H);
         viewUniforms.uSize.value.set(width, height);
-        viewUniforms.uCell.value = Math.max(2, Math.round(2.4 * dpr));
+        viewUniforms.uCell.value = Math.max(2, Math.round(2 * dpr));
         maskUniforms.uSize.value.set(width, height);
         maskUniforms.uRadius.value = Math.max(70, Math.min(width, height) * 0.14);
         viewUniforms.uBurstWidth.value = Math.max(60, Math.min(width, height) * 0.12);
@@ -477,11 +519,15 @@ export function Globe({ className }: { className?: string }) {
         const dt = Math.min(0.05, Math.max(0, (now - lastT) / 1000));
         lastT = now;
         if (!reduce && !dragging) {
-          spin += dt * 0.06;
+          spin += dt;
           dragX += velocity;
           velocity *= 0.94;
+          // after a drag, drift slowly back to the land side
+          dragX *= Math.exp(-dt * 0.25);
+          dragY *= Math.exp(-dt * 0.6);
         }
-        globe.rotation.y = baseY + spin + dragX;
+        const sway = reduce ? 0 : Math.sin(spin * 0.06) * 0.6;
+        globe.rotation.y = baseY + sway + dragX;
         tilt.rotation.x = 18 * D + dragY;
 
         const p = (t % 2.4) / 2.4;

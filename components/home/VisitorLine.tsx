@@ -84,10 +84,17 @@ export function VisitorLine({ fallback }: { fallback: string }) {
   useEffect(() => {
     let raf = 0;
     let lastSec = -1;
+    let lastPaint = 0;
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const tick = () => {
       const d = new Date();
-      if (clock.current && (!reduce || d.getSeconds() !== lastSec)) {
+      const now = d.getTime();
+      if (
+        clock.current &&
+        now - lastPaint >= (reduce ? 1000 : 50) &&
+        (!reduce || d.getSeconds() !== lastSec)
+      ) {
+        lastPaint = now;
         lastSec = d.getSeconds();
         clock.current.textContent = `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}${
           reduce ? "" : ":" + pad(Math.floor(d.getMilliseconds() / 10))

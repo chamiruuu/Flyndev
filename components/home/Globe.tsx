@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { whenIdle } from "./AfterLoad";
 import { DESTINATIONS, HOME, isLand } from "./land";
 
 const INK = 0x141414;
@@ -162,7 +163,9 @@ export function Globe({ className }: { className?: string }) {
     let disposed = false;
     let cleanup = () => {};
 
-    (async () => {
+    // Start after the page has loaded, so the globe never competes with the first paint.
+    const stopWaiting = whenIdle(() => void start());
+    const start = async () => {
       const THREE = await import("three");
       if (disposed) return;
 
@@ -177,7 +180,7 @@ export function Globe({ className }: { className?: string }) {
       } catch {
         return; // no WebGL: the globe is decorative, so simply leave it out
       }
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
       renderer.setPixelRatio(dpr);
       renderer.setClearColor(0x000000, 0);
       renderer.autoClear = true;
@@ -338,7 +341,7 @@ export function Globe({ className }: { className?: string }) {
       });
 
       // ---------- post-processing: scene target, trail mask, dither pass ----------
-      const sceneRT = new THREE.WebGLRenderTarget(2, 2, { samples: 4 });
+      const sceneRT = new THREE.WebGLRenderTarget(2, 2, { samples: 2 });
       const maskOpts = {
         type: THREE.HalfFloatType,
         minFilter: THREE.LinearFilter,
@@ -414,6 +417,7 @@ export function Globe({ className }: { className?: string }) {
       const pointer = { x: 0, y: 0, inside: false, fresh: true };
       const brush = { x: 0, y: 0, px: 0, py: 0 };
       let presence = 0;
+      let trailUntil = 0;
       const bursts: { x: number; y: number; start: number }[] = [];
       let dragX = 0;
       let dragY = 0;
@@ -572,16 +576,20 @@ export function Globe({ className }: { className?: string }) {
           brush.x += (pointer.x - brush.x) * follow;
           brush.y += (pointer.y - brush.y) * follow;
         }
-        maskUniforms.tPrev.value = masks[0].texture;
-        maskUniforms.uFrom.value.set(brush.px, brush.py);
-        maskUniforms.uTo.value.set(brush.x, brush.y);
-        maskUniforms.uStrength.value = presence;
-        maskUniforms.uFade.value = Math.max(dt / 1.0, 1 / 512);
-        renderer.setRenderTarget(masks[1]);
-        renderer.render(maskScene, quadCam);
-        masks.reverse();
-        brush.px = brush.x;
-        brush.py = brush.y;
+        // The trail mask only needs updating while there is something in it.
+        if (pointer.inside || presence > 0.002 || now < trailUntil) {
+          if (pointer.inside || presence > 0.002) trailUntil = now + 1400;
+          maskUniforms.tPrev.value = masks[0].texture;
+          maskUniforms.uFrom.value.set(brush.px, brush.py);
+          maskUniforms.uTo.value.set(brush.x, brush.y);
+          maskUniforms.uStrength.value = presence;
+          maskUniforms.uFade.value = Math.max(dt / 1.0, 1 / 512);
+          renderer.setRenderTarget(masks[1]);
+          renderer.render(maskScene, quadCam);
+          masks.reverse();
+          brush.px = brush.x;
+          brush.py = brush.y;
+        }
 
         // 3. ripples
         for (let i = bursts.length - 1; i >= 0; i--)
@@ -608,8 +616,18 @@ export function Globe({ className }: { className?: string }) {
       let raf = 0;
       let visible = true;
       let idleFrames = 0;
+      let lastDraw = 0;
       const loop = (now: number) => {
         raf = 0;
+        // While the page is scrolling, draw at 30 fps to leave the GPU free for the scroll.
+        if (
+          (window as Window & { __fdScrolling?: boolean }).__fdScrolling &&
+          now - lastDraw < 31
+        ) {
+          if (visible && !document.hidden) raf = requestAnimationFrame(loop);
+          return;
+        }
+        lastDraw = now;
         draw(now);
         // With reduced motion, keep drawing only while the trail fades or a drag is going on.
         if (reduce) {
@@ -660,10 +678,11 @@ export function Globe({ className }: { className?: string }) {
         renderer.dispose();
         canvas.remove();
       };
-    })();
+    };
 
     return () => {
       disposed = true;
+      stopWaiting();
       cleanup();
     };
   }, []);

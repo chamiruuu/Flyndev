@@ -28,6 +28,8 @@ export interface GalaxyProps extends Omit<HTMLAttributes<HTMLDivElement>, "style
   opacity?: number;
   disableAnimation?: boolean;
   dpr?: number;
+  /** Cap the frame rate (0 = display rate). */
+  maxFps?: number;
   className?: string;
   style?: CSSProperties;
 }

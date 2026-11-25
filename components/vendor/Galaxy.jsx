@@ -1,6 +1,8 @@
 'use client';
 
-/* Galaxy from React Bits (reactbits.dev). Used on the hero in light mode (ink stars on the page). */
+/* Galaxy from React Bits (reactbits.dev). Used on the hero in light mode (ink stars on the page).
+ * Flyndev: `maxFps` caps the frame rate, and it drops to 30 fps while the page is being scrolled
+ * (window.__fdScrolling, set in SmoothScroll.tsx) to leave the GPU free for scrolling. */
 
 import { useEffect, useRef } from 'react';
 import './Galaxy.css';
@@ -266,6 +268,7 @@ const Galaxy = ({
   backgroundColor,
   opacity = 1,
   dpr,
+  maxFps = 0,
   className = '',
   style,
   ...rest
@@ -301,7 +304,8 @@ const Galaxy = ({
     intro,
     backgroundColor,
     opacity: clamp(opacity, 0, 1),
-    dpr
+    dpr,
+    maxFps
   };
   const settingsRef = useRef(settings);
   settingsRef.current = settings;
@@ -438,10 +442,17 @@ const Galaxy = ({
       gl.drawArrays(gl.TRIANGLES, 0, 3);
     };
 
+    let lastDraw = 0;
     const frame = now => {
       raf = 0;
       if (!visible || document.hidden) return;
       const s = settingsRef.current;
+      const cap = window.__fdScrolling ? 30 : s.maxFps;
+      if (cap && now - lastDraw < 1000 / cap - 2) {
+        raf = requestAnimationFrame(frame);
+        return;
+      }
+      lastDraw = now;
       const dt = last ? clamp((now - last) / 1000, 0.0005, 0.05) : 1 / 60;
       last = now;
       const motion = s.disableAnimation || reduce ? 0 : 1;

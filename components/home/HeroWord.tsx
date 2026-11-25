@@ -45,8 +45,9 @@ export function HeroWord({ text }: { text: string }) {
       raf = requestAnimationFrame(() => {
         // Wait for the headline's entrance (a transform) to finish, so the positions are final.
         const moving = heading && getComputedStyle(heading).transform !== "none";
-        const entering =
-          heading?.classList.contains("rv") && !heading.classList.contains("in");
+        const entering = heading
+          ? heading.getAnimations().some((a) => a.playState === "running")
+          : false;
         if ((moving || entering) && tries++ < 240) return measure();
         tries = 0;
         const r = el.getBoundingClientRect();

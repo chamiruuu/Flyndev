@@ -84,7 +84,7 @@
   font-size: 10.5px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: #a8a29e;
+  color: var(--faint);
 }
 
 /* Buttons */
@@ -700,6 +700,17 @@
   mask-image: linear-gradient(180deg, #000 70%, transparent 100%);
 }
 
+/* the stars fade in once they start (after load) */
+.skyFade {
+  animation: skyIn 1.6s var(--ease) both;
+}
+
+@keyframes skyIn {
+  from {
+    opacity: 0;
+  }
+}
+
 /* hero word with the React Bits TechText effect */
 .heroWord {
   position: relative;
@@ -725,6 +736,19 @@
   width: 100%;
   z-index: 45;
   pointer-events: none;
+}
+
+/* hero entrance: pure CSS, starts on first paint (no wait for JavaScript, good for LCP) */
+.heroIn {
+  animation: heroIn 0.9s var(--ease) both;
+  animation-delay: var(--rv, 0s);
+}
+
+@keyframes heroIn {
+  from {
+    opacity: 0.01;
+    transform: translateY(24px);
+  }
 }
 
 /* ticker */

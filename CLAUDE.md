@@ -65,6 +65,11 @@ Next.js (App Router, static export) + TypeScript + CSS Modules. Three.js for the
 - Navigation: the logo scrolls away; a fixed "flight deck" stays top-right. At the top of the page (desktop)
   it shows the links + Radio us; after 120px of scroll the links fold into the menu button. Phones always
   show the menu button. The menu is a departure-board card (`Nav.tsx`). "Radio us" has an animated radar icon.
+- Performance budget (do not regress): WebGL effects start after load+idle (`AfterLoad.tsx`), Galaxy at
+  dpr 1 and 30 fps, globe dpr ≤ 1.5 with 2× MSAA and an idle-skipped trail pass; both drop to 30 fps while
+  scrolling (`window.__fdScrolling`, set in `SmoothScroll.tsx`). Hero text uses a CSS-only entrance (`.heroIn`)
+  so LCP never waits for JS. Lighthouse with WebGL off: desktop 100, mobile 85. With WebGL on, sandbox scores
+  are dominated by software rendering and are not meaningful.
 - Layout width: `--wrap` 1680px with fluid `--pad`, so big screens don't get a wide empty gutter.
 - Smooth scrolling: Lenis (`SmoothScroll.tsx`), off with reduced motion; anchors handled by Lenis.
 - "runway" TechText layer covers the whole first screen (portal on `body`, window events), so letters can be

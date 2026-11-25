@@ -81,7 +81,8 @@ or the resting pose, edit and run `node scripts/generate-globe-data.mjs` (about 
 - `npx @lhci/cli@0.16.1 autorun` checks Lighthouse budgets (`lighthouserc.json`): scores, LCP, CLS,
   blocking time and script size, measured with the WebGL worker blocked.
 - GitHub Actions (`.github/workflows/ci.yml`) runs all of the above on every push to the preview and
-  production branches.
+  production branches. The screenshot comparison is informational there (GitHub's machines render
+  text slightly differently from where the baselines were made); run it locally before committing.
 - Vercel Speed Insights reports real-visitor speed once it is switched on in the Vercel project
   (**Speed Insights** tab → Enable). It is anonymous and sets no cookies.
 

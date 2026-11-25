@@ -40,7 +40,7 @@ export function Radio() {
         Ready for <span className={`${s.serif} ${s.orange}`}>takeoff?</span>
       </h2>
       <p className="rv">
-        Tell us where you want your business to go. We reply within [one working day] with
+        Tell us where you want your business to go. We reply within {site.replyTime} with
         a clear next step.
       </p>
       <div className={`${s.radioCtas} rv`}>

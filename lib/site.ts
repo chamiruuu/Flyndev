@@ -13,6 +13,13 @@ export const site = {
   timezone: "Asia/Colombo",
   location: { locality: "Colombo", country: "LK", label: "COLOMBO, LK" },
   founded: 2026,
+  /** Reply promise shown on the contact page. */
+  replyTime: "[one working day]",
+  /**
+   * Call booking (e.g. a Cal.com or Calendly link). Leave url empty to hide it; the slot on
+   * /radio appears as soon as a link is set.
+   */
+  booking: { url: "", label: "Book a 20-minute call" },
 
   hero: {
     kicker: "Digital studio · Flying worldwide",

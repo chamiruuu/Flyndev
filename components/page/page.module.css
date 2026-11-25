@@ -445,3 +445,38 @@
     display: none;
   }
 }
+
+/* ---------- legal ---------- */
+
+.draft {
+  display: inline-block;
+  margin: 0 0 24px;
+  padding: 8px 14px;
+  border: 1px dashed var(--accent);
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent-text);
+}
+
+.legal {
+  border-top: 1px solid var(--line);
+  margin-bottom: clamp(64px, 8vw, 120px);
+}
+
+.legalBody {
+  max-width: 68ch;
+}
+
+.legalBody p {
+  margin: 0 0 1em;
+  font-size: 17px;
+  line-height: 1.7;
+  color: var(--muted);
+}
+
+.legalBody p:last-child {
+  margin-bottom: 0;
+}

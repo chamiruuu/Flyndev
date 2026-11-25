@@ -963,8 +963,18 @@ const TechText = ({
       const rect = container.getBoundingClientRect();
       return e.clientX >= rect.left && e.clientX <= rect.right && e.clientY >= rect.top && e.clientY <= rect.bottom;
     };
+    // With window events the layer covers the whole screen, so "inside" means near the word;
+    // anywhere else the idle sweep keeps playing.
+    const nearWord = e => {
+      if (!word) return false;
+      const rect = container.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      const m = Math.max(40, word.size * 0.6);
+      return x > word.left - m && x < word.right + m && y > word.top - m && y < word.bottom + m;
+    };
     const onWindowMove = e => {
-      if (dragging < 0 && !inBounds(e)) {
+      if (dragging < 0 && (!inBounds(e) || !nearWord(e))) {
         if (pointer.inside) onLeave();
         return;
       }

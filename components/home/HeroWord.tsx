@@ -110,7 +110,7 @@ export function HeroWord({ text }: { text: string }) {
               specks={10}
               intro="none"
               sweep
-              speed={0.7}
+              speed={1.4}
               clickKick
               guides={false}
               windowEvents

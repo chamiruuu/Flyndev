@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { PageShell } from "@/components/page/PageShell";
@@ -37,9 +38,9 @@ export default async function FlightLog({ params }: Props) {
     <PageShell>
       <article className={h.wrap}>
         <header className={p.head}>
-          <a href="/flights" className={`${p.back} cursor-target`}>
+          <Link href="/flights" className={`${p.back} cursor-target`}>
             <ArrowLeft size={14} color="currentColor" /> All flights
-          </a>
+          </Link>
           <p className={`${h.kicker} ${h.heroIn}`}>
             Flight log · {f.code} · {f.type}
           </p>
@@ -172,13 +173,13 @@ export default async function FlightLog({ params }: Props) {
           </section>
         )}
 
-        <a href={`/flights/${next.slug}`} className={`${p.next} cursor-target rv`}>
+        <Link href={`/flights/${next.slug}`} className={`${p.next} cursor-target rv`}>
           <span>
             <span className={p.label}>Next flight · {next.code}</span>
             <span className={p.nextTitle}>{next.client}</span>
           </span>
           <ArrowUpRight size={28} />
-        </a>
+        </Link>
       </article>
       <Radio />
     </PageShell>

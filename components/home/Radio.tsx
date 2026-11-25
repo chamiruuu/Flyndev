@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { site } from "@/lib/site";
 import { Arrow } from "./icons";
 import s from "./home.module.css";
@@ -43,7 +44,7 @@ export function Radio() {
         a clear next step.
       </p>
       <div className={`${s.radioCtas} rv`}>
-        <a
+        <Link
           href="/radio"
           className={`${s.btnAccent} cursor-target`}
           data-cursor-label="Flight plan"
@@ -52,7 +53,7 @@ export function Radio() {
           <span className={s.btnDot}>
             <Arrow />
           </span>
-        </a>
+        </Link>
         <a href={`mailto:${site.email}`} className={`${s.radioMail} cursor-target`}>
           {site.email}
         </a>

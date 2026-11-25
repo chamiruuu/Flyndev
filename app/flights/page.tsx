@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { Metadata } from "next";
 import { PageShell } from "@/components/page/PageShell";
 import { ArrowUpRight } from "@/components/home/icons";
@@ -41,7 +42,7 @@ export default function FlightsPage() {
             <span />
           </div>
           {flights.map((f) => (
-            <a
+            <Link
               key={f.slug}
               href={`/flights/${f.slug}`}
               className={`${p.boardRow} cursor-target`}
@@ -59,7 +60,7 @@ export default function FlightsPage() {
               <span className={p.boardArrow} aria-hidden="true">
                 <ArrowUpRight />
               </span>
-            </a>
+            </Link>
           ))}
           <p className={h.placeholderNote} style={{ paddingTop: 16 }}>
             [Placeholder flights · replace with real projects in lib/flights.ts]

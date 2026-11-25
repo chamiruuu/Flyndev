@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { AnimatePresence, motion } from "motion/react";
 import { useState } from "react";
 import { site } from "@/lib/site";
@@ -26,7 +27,7 @@ export function Flights() {
               from the board to see where it went and how it flew.
             </p>
           </div>
-          <a
+          <Link
             href="/flights"
             className={`${s.allFlights} cursor-target`}
             aria-label="See all flights"
@@ -35,7 +36,7 @@ export function Flights() {
             <span className={s.runwayPill} aria-hidden="true">
               <Plane size={18} color="var(--accent)" rotate={0} />
             </span>
-          </a>
+          </Link>
         </div>
 
         <div className={`${s.workGrid} rv`}>
@@ -134,12 +135,15 @@ export function Flights() {
                 <div className={s.perf} aria-hidden="true" />
                 <div className={s.ticketFoot}>
                   <p>{f.summary}</p>
-                  <a href={`/flights/${f.slug}`} className={`${s.btnDark} cursor-target`}>
+                  <Link
+                    href={`/flights/${f.slug}`}
+                    className={`${s.btnDark} cursor-target`}
+                  >
                     <span>View flight log</span>
                     <span className={s.btnDot}>
                       <ArrowUpRight color="#fff" />
                     </span>
-                  </a>
+                  </Link>
                 </div>
               </motion.div>
             </AnimatePresence>

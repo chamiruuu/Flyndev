@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import s from "./home.module.css";
 
@@ -155,14 +156,14 @@ export function Nav({ base = "" }: { base?: string }) {
           </span>
           <span className={s.menuLabel}>{open ? "Close" : "Menu"}</span>
         </button>
-        <a
+        <Link
           href="/radio"
           className={`${s.navCta} cursor-target`}
           data-cursor-label="Contact"
         >
           <span>Radio us</span>
           <RadarIcon />
-        </a>
+        </Link>
 
         <nav
           id="flight-menu"

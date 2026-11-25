@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { site } from "@/lib/site";
 import { PLANE_PATH } from "./icons";
 import s from "./home.module.css";
@@ -57,7 +58,7 @@ export function Footer({ base = "" }: { base?: string }) {
           </nav>
           <div className={s.footCol}>
             <span className={s.fieldLabel}>Frequency</span>
-            <a href="/radio">File a flight plan</a>
+            <Link href="/radio">File a flight plan</Link>
             <a href={`mailto:${site.email}`}>Email us</a>
             <a
               href={`https://www.instagram.com/${site.instagram}`}
@@ -82,8 +83,8 @@ export function Footer({ base = "" }: { base?: string }) {
         <div className={s.footBar}>
           <span>© {year} FLYNDEV · ALL RIGHTS RESERVED</span>
           <span className={s.footLegal}>
-            <a href="/privacy">Privacy</a>
-            <a href="/terms">Terms</a>
+            <Link href="/privacy">Privacy</Link>
+            <Link href="/terms">Terms</Link>
           </span>
           <span>ALL SYSTEMS GO</span>
         </div>

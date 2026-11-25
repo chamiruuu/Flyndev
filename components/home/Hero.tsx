@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { site } from "@/lib/site";
 import { Arrow, Plane } from "./icons";
 import { HeroCanvas } from "./HeroCanvas";
@@ -34,12 +35,12 @@ export function Hero() {
               className={`${s.heroCtas} ${s.heroIn}`}
               style={{ ["--rv" as string]: "0.24s" }}
             >
-              <a href="/radio" className={`${s.btnDark} cursor-target`}>
+              <Link href="/radio" className={`${s.btnDark} cursor-target`}>
                 <span>Start your flight</span>
                 <span className={s.btnDot}>
                   <Arrow />
                 </span>
-              </a>
+              </Link>
               <a href="#route" className={`${s.btnGhost} cursor-target`}>
                 Our flight path
               </a>

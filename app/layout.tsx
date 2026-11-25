@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono, Instrument_Serif } from "next/font/google";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import { organizationJsonLd, seo } from "@/lib/seo";
 import { site } from "@/lib/site";
 import "./globals.css";
@@ -75,6 +76,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             __html: JSON.stringify(organizationJsonLd).replace(/</g, "\\u003c"),
           }}
         />
+        <SpeedInsights />
       </body>
     </html>
   );

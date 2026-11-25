@@ -111,7 +111,7 @@ export function VisitorLine({ fallback }: { fallback: string }) {
       <span className={s.liveDot} aria-hidden="true" />
       <span>{label ?? fallback}</span>
       <span aria-hidden="true">·</span>
-      <span ref={clock} aria-label="Your local time" suppressHydrationWarning>
+      <span ref={clock} aria-label="Your local time" data-clock suppressHydrationWarning>
         --:--:--
       </span>
     </p>

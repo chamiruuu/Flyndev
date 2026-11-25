@@ -2354,7 +2354,7 @@
   background: #f1eee8;
   font-family: var(--font-mono);
   font-size: 7px;
-  color: var(--faint);
+  color: var(--muted);
 }
 
 .personText {

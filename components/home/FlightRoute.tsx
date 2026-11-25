@@ -366,7 +366,6 @@ export function FlightRoute() {
                 key={st.code}
                 type="button"
                 onClick={(e) => go(i, e.timeStamp)}
-                aria-label={`Waypoint ${i + 1}: ${st.name}`}
                 aria-current={i === step ? "step" : undefined}
                 className={`${s.wp} ${i < step ? s.wpDone : ""} ${i === step ? s.wpCurrent : ""} cursor-target`}
                 style={{
@@ -374,6 +373,7 @@ export function FlightRoute() {
                   top: `${(P[i][1] / H) * 100}%`,
                 }}
               >
+                <span className="visually-hidden">Waypoint </span>
                 <span className={s.wpNum}>0{i + 1}</span>
                 <span className={s.wpLabel}>
                   {st.code}

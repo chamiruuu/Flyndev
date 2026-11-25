@@ -44,7 +44,10 @@ export function FlightPlanForm() {
   useEffect(() => {
     if (!done || !doneRef.current) return;
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    doneRef.current.scrollIntoView({ block: "center", behavior: reduce ? "auto" : "smooth" });
+    doneRef.current.scrollIntoView({
+      block: "center",
+      behavior: reduce ? "auto" : "smooth",
+    });
     doneRef.current.focus({ preventScroll: true });
   }, [done]);
 

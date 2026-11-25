@@ -14,15 +14,16 @@ npm install
 npm run dev          # http://localhost:3000
 ```
 
-| Command             | What it does                                 |
-| ------------------- | -------------------------------------------- |
-| `npm run dev`       | Dev server                                   |
-| `npm run build`     | Static export into `out/`                    |
-| `npm run lint`      | ESLint                                       |
-| `npm run typecheck` | TypeScript check                             |
-| `npm run format`    | Prettier (write). `format:check` only checks |
+| Command             | What it does                                  |
+| ------------------- | --------------------------------------------- |
+| `npm run dev`       | Dev server                                    |
+| `npm run build`     | Static export into `out/`                     |
+| `npm run lint`      | ESLint                                        |
+| `npm run typecheck` | TypeScript check                              |
+| `npm run format`    | Prettier (write). `format:check` only checks  |
+| `npm run test:e2e`  | Playwright tests against `out/` (build first) |
 
-To preview the production build: `npm run build && npx serve out`.
+To preview the production build: `npm run build && node scripts/serve-static.mjs` (port 4173).
 
 ## Editing content
 
@@ -32,6 +33,63 @@ passenger stories (add an `audio` file path under `/public` to make a voice note
 Anything in `[brackets]` is a placeholder.
 
 Page title and description (and the JSON-LD organisation) live in `lib/seo.ts`.
+
+## Pages
+
+| Route             | Source                        | Content lives in |
+| ----------------- | ----------------------------- | ---------------- |
+| `/`               | `app/page.tsx`                | `lib/site.ts`    |
+| `/flights`        | `app/flights/page.tsx`        | `lib/flights.ts` |
+| `/flights/[slug]` | `app/flights/[slug]/page.tsx` | `lib/flights.ts` |
+| `/radio`          | `app/radio/page.tsx`          | `lib/contact.ts` |
+| `/privacy`        | `app/privacy/page.tsx`        | `lib/legal.ts`   |
+| `/terms`          | `app/terms/page.tsx`          | `lib/legal.ts`   |
+
+**Case studies ("flight logs").** Add or edit an entry in `lib/flights.ts`; the home board, the
+`/flights` list, the log page, the sitemap and a share image (`opengraph-image.tsx`, built at build time
+with the fonts in `assets/fonts/`) all follow. `vercel.json` serves those images as PNG.
+
+**Contact form.** The site is a static export, so `/radio` currently opens the visitor's email app with
+the flight plan filled in. To send through Resend instead, deploy a small function that accepts the
+JSON body (`name, email, company, services, budget, timeline, message, code`) and calls Resend, then set
+`NEXT_PUBLIC_CONTACT_ENDPOINT` to its URL in Vercel and redeploy. Nothing on the page changes.
+The call-booking slot appears on `/radio` once `site.booking.url` is set in `lib/site.ts`.
+
+**Legal.** `/privacy` and `/terms` are drafts for review, not legal advice. While `legalDraft` is
+`true` in `lib/legal.ts` they show a draft badge, are marked `noindex` and stay out of the sitemap.
+Fill in the `[bracketed]` values, then set it to `false`.
+
+## Hero engine
+
+The stars and the globe are one WebGL canvas (`components/home/hero/scene.ts`) that runs in a Web Worker
+on an OffscreenCanvas (`hero.worker.ts`, bundled to `public/hero-worker.js` by
+`scripts/build-hero-worker.mjs` before every `dev`/`build`), with a main-thread fallback. It starts after
+the page is idle, drops resolution, antialiasing and star count if frames run slow, and renders at 30 fps
+while scrolling. Until it is ready (and with JavaScript off) the globe is the SVG poster
+`public/hero-globe.svg`.
+
+The globe's dots come from real map data (Natural Earth via `world-atlas`). To change the dot spacing
+or the resting pose, edit and run `node scripts/generate-globe-data.mjs` (about a minute); it rewrites
+`components/home/hero/globeDots.json` and the poster.
+
+## Quality checks
+
+- `npm run test:e2e` runs Playwright at phone, tablet and desktop sizes: every page loads with one
+  heading and no errors, the home page works without JavaScript, an axe WCAG 2.1 A/AA scan, the
+  contact form, and visual baselines (`tests/visual.spec.ts-snapshots/`). After an intended design
+  change: `npm run test:e2e -- --update-snapshots`, look at the new images, commit them.
+- `npx @lhci/cli@0.16.1 autorun` checks Lighthouse budgets (`lighthouserc.json`): scores, LCP, CLS,
+  blocking time and script size, measured with the WebGL worker blocked.
+- GitHub Actions (`.github/workflows/ci.yml`) runs all of the above on every push to the preview and
+  production branches.
+- Vercel Speed Insights reports real-visitor speed once it is switched on in the Vercel project
+  (**Speed Insights** tab → Enable). It is anonymous and sets no cookies.
+
+### Open accessibility question
+
+White text on the brand orange (`#F4511E`) is 3.5:1; WCAG AA asks 4.5:1 for normal-size text. It
+affects the orange buttons, the Hangar badges and the current waypoint number. The axe test skips
+those elements until a choice is made (see `tests/a11y.spec.ts`).
 Colours and fonts are the tokens at the top of `app/globals.css`; section styles are in
 `components/home/home.module.css`.
 

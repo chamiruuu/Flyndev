@@ -33,8 +33,12 @@ Website for **flyndev.com** (digital studio: web, systems and automation, Colomb
 Next.js (App Router, static export) + TypeScript + CSS Modules. Three.js for the hero globe, Motion
 (`motion/react`) for crossfades and the route plane.
 
-- Commands: `npm run dev`, `npm run build` (writes `out/`), `npm run lint`, `npm run typecheck`, `npx prettier --check .`
+- Commands: `npm run dev`, `npm run build` (writes `out/`), `npm run lint`, `npm run typecheck`, `npx prettier --check .`,
+  `npm run test:e2e` (Playwright, needs a build), `npx @lhci/cli@0.16.1 autorun` (Lighthouse budgets).
 - Content and copy live in `lib/site.ts` (anything in [brackets] is a placeholder); metadata in `lib/seo.ts`.
+  Case studies in `lib/flights.ts`, contact form logic in `lib/contact.ts`, legal drafts in `lib/legal.ts`.
+- Pages: `/`, `/flights`, `/flights/[slug]` (flight logs + build-time share image), `/radio` (contact),
+  `/privacy`, `/terms`. Inner pages use `components/page/PageShell.tsx` and `page.module.css`.
 - Home page sections are in `components/home/` with one stylesheet, `components/home/home.module.css`.
 - Hosting: Vercel team "Flyndev", project `flyndev`, domain registered at Porkbun (DNS points at Vercel).
   Vercel MCP tools can list deployments and read build logs. The sandbox cannot open the live domain.
@@ -56,20 +60,25 @@ Next.js (App Router, static export) + TypeScript + CSS Modules. Three.js for the
 - Cursor on mouse devices: React Bits `TargetCursor` (`components/TargetCursor.tsx`). Mark clickable things
   with the `cursor-target` class (and `data-cursor-label`).
 - Globe pauses off-screen and holds still with reduced motion.
+- **Hero engine:** stars and globe are ONE WebGL canvas (`components/home/hero/scene.ts`) running in a Web Worker
+  on an OffscreenCanvas, main-thread fallback. The worker is bundled by esbuild to `public/hero-worker.js`
+  (`predev`/`prebuild`; Next/Turbopack copies `new Worker(new URL())` targets unbundled in a static export, so
+  don't switch back). Adaptive quality tiers; SVG poster `public/hero-globe.svg` shows first and with JS off.
+  Globe dots are real Natural Earth data (`scripts/generate-globe-data.mjs`). Galaxy (vendor) was removed.
 - Hero effects (all light theme): "runway" uses React Bits **TechText** (`components/vendor/TechText.jsx`,
   adapted with `fontStyle` + `layout` so it sits exactly on the real DOM word; the DOM word stays for
   readers/no-JS). The globe is rendered off-screen and **dithered** in ink on paper (DitherVeil-style
-  Bayer pass in `Globe.tsx`), clean render shows around the cursor, click = ripple. Background is React Bits
-  **Galaxy** in light mode (ink stars). Vendor files live in `components/vendor/` (lint-ignored, `.d.ts` types).
+  Bayer pass in `hero/scene.ts`), solid orange dotted spotlight around the cursor, click = ripple. Stars are
+  soft grey points (a few orange) drifting from the globe, pushed away by the cursor. Vendor files live in `components/vendor/` (lint-ignored, `.d.ts` types).
 - three.js lights divide by π: the globe's ambient/directional intensities look high on purpose.
 - Navigation: the logo scrolls away; a fixed "flight deck" stays top-right. At the top of the page (desktop)
   it shows the links + Radio us; after 120px of scroll the links fold into the menu button. Phones always
   show the menu button. The menu is a departure-board card (`Nav.tsx`). "Radio us" has an animated radar icon.
-- Performance budget (do not regress): WebGL effects start after load+idle (`AfterLoad.tsx`), Galaxy at
-  dpr 1 and 30 fps, globe dpr ≤ 1.5 with 2× MSAA and an idle-skipped trail pass; both drop to 30 fps while
-  scrolling (`window.__fdScrolling`, set in `SmoothScroll.tsx`). Hero text uses a CSS-only entrance (`.heroIn`)
-  so LCP never waits for JS. Lighthouse with WebGL off: desktop 100, mobile 85. With WebGL on, sandbox scores
-  are dominated by software rendering and are not meaningful.
+- Performance budget (do not regress): WebGL starts after load+idle (`whenIdle`), off the main thread, dpr ≤ 1.5
+  with 2× MSAA (lower tiers drop these), idle-skipped trail pass, 30 fps while scrolling (`window.__fdScrolling`,
+  set in `SmoothScroll.tsx`). Hero text uses a CSS-only entrance (`.heroIn`) so LCP never waits for JS.
+  Lighthouse (mobile, worker blocked): 91–100 performance, 100 accessibility, CLS 0. Budgets are enforced in
+  `lighthouserc.json` and CI. With WebGL on, sandbox scores are dominated by software rendering.
 - Layout width: `--wrap` 1680px with fluid `--pad`, so big screens don't get a wide empty gutter.
 - Smooth scrolling: Lenis (`SmoothScroll.tsx`), off with reduced motion; anchors handled by Lenis.
 - "runway" TechText layer covers the whole first screen (portal on `body`, window events), so letters can be
@@ -77,6 +86,14 @@ Next.js (App Router, static export) + TypeScript + CSS Modules. Three.js for the
 - Globe: crisp land dots/routes, opaque paper body (stars never show through), soft grey stipple only on
   the shaded edge, faint ocean dots so rotation is visible; slow sway that stays on the land side; hover =
   solid orange dotted spotlight.
+- Contact: `/radio` flight-plan form. For now it opens a prefilled email draft; Resend comes later via
+  `NEXT_PUBLIC_CONTACT_ENDPOINT` (needs a serverless function). Booking slot exists but stays hidden until
+  `site.booking.url` is set. Owner wants both eventually.
+- No CMS: the team are developers; content stays in typed files.
+- Legal pages are drafts (`legalDraft` in `lib/legal.ts`: badge + noindex). Owner confirms before go-live.
+- Speed Insights component is in the layout; it only reports once enabled in the Vercel dashboard.
+- Tests: Playwright smoke/axe/form/visual at 3 sizes in `tests/`. Visual tests block the hero worker and hide
+  canvases. After a deliberate design change, update baselines and look at them before committing.
 - Fonts: the Instrument Serif next/font variable is `--font-instrument` (never name it `--font-serif`:
   that clashed with the CSS token and silently fell back to a slanted sans).
 
@@ -88,7 +105,12 @@ Next.js (App Router, static export) + TypeScript + CSS Modules. Three.js for the
 - Overlapping translucent strokes show dark beads. Draw one stroke per band.
 - Browsers block audio that starts by itself; sound needs a user click.
 - Lock the intro timeline before producing anything that depends on its timing (audio, scripts).
-- Playwright is available globally (`NODE_PATH=$(npm root -g)`). Step animations to exact times with
+- Next's static export copies Web Worker sources unbundled; build workers yourself (esbuild script).
+- `@vercel/og` can't read some font files (GSUB lookup type 6, e.g. the skills' GeistMono); use the Google
+  Fonts static TTF.
+- A full-screen canvas (TechText layer) makes Playwright screenshot masks cover the page; hide canvases instead.
+- `python -m http.server` doesn't map `/flights/fd-104` to `fd-104.html`; use `scripts/serve-static.mjs`.
+- Playwright is available globally (`NODE_PATH=$(npm root -g)`), and `@playwright/test` 1.63 is a dev dependency. Step animations to exact times with
   `document.getAnimations()` for repeatable screenshots.
 
 ## Brand
@@ -98,7 +120,12 @@ Next.js (App Router, static export) + TypeScript + CSS Modules. Three.js for the
 
 ## Open items
 
+- White text on brand orange is 3.5:1 (AA needs 4.5:1): orange buttons, Hangar badges, current waypoint number.
+  Owner to choose (darker orange for buttons, ink text on orange, or bigger/bolder text). Axe test skips them.
+- Real case studies in `lib/flights.ts`; legal placeholders and confirmation; enable Speed Insights in Vercel.
+
 - Final contact email (currently the Gmail address in `lib/site.ts`).
 - Instagram profile `sameAs` entry in the structured data: confirm the account is live.
 - Placeholders in `lib/site.ts`: projects, client voice notes/quotes, reply time ("[one working day]").
-- Next pages to design: contact form (Radio), case studies (flight logs), others.
+- Contact form and flight logs exist now; they follow the home page style but were not mocked on the
+  Claude Design canvas first. Owner to review them on the preview link.

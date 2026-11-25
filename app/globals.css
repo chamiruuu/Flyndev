@@ -17,8 +17,8 @@
   --font-mono: var(--font-geist-mono), ui-monospace, "SF Mono", Menlo, monospace;
   --font-serif: var(--font-instrument), Georgia, serif;
 
-  --wrap: 1320px;
-  --pad: 48px;
+  --wrap: 1680px;
+  --pad: clamp(24px, 4.5vw, 88px);
   --section: clamp(96px, 12vw, 176px);
   --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
 

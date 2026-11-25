@@ -3,6 +3,13 @@
 import { useEffect, useRef, useState } from "react";
 import s from "./home.module.css";
 
+const LINKS = [
+  { href: "#about", name: "About" },
+  { href: "#route", name: "Flight path" },
+  { href: "#flights", name: "Flights" },
+  { href: "#hangar", name: "Hangar" },
+];
+
 const ROUTES = [
   { gate: "A1", href: "#about", name: "Who Flyndev is", status: "On time" },
   { gate: "A2", href: "#route", name: "Flight path", status: "On time" },
@@ -13,14 +20,74 @@ const ROUTES = [
   { gate: "R", href: "#radio", name: "Radio the tower", status: "Boarding" },
 ];
 
+/** The orange beacon in "Radio us": a small radar with a turning sweep and two pings. */
+export function RadarIcon() {
+  return (
+    <span className={s.radarIcon} aria-hidden="true">
+      <svg viewBox="0 0 32 32">
+        <circle
+          cx="16"
+          cy="16"
+          r="9.5"
+          fill="none"
+          stroke="#fff"
+          strokeOpacity="0.35"
+          strokeWidth="1"
+        />
+        <circle
+          className={s.radarRing}
+          cx="16"
+          cy="16"
+          r="15"
+          fill="none"
+          stroke="#fff"
+          strokeWidth="1.2"
+        />
+        <circle
+          className={s.radarRing2}
+          cx="16"
+          cy="16"
+          r="15"
+          fill="none"
+          stroke="#fff"
+          strokeWidth="1.2"
+        />
+        <g className={s.radarSweep}>
+          <path d="M16 16 L16 3 A13 13 0 0 1 25.2 6.8 Z" fill="#fff" fillOpacity="0.35" />
+          <path
+            d="M16 16 L25.2 6.8"
+            stroke="#fff"
+            strokeWidth="1.4"
+            strokeLinecap="round"
+          />
+        </g>
+        <circle cx="16" cy="16" r="2" fill="#fff" />
+      </svg>
+    </span>
+  );
+}
+
 /**
- * The logo scrolls away with the page; a small "flight deck" (menu + Radio us) stays fixed top-right.
+ * The logo scrolls away with the page. A fixed "flight deck" stays top-right: at the top of the page it
+ * shows the main links; once you scroll they fold into a menu button (always the menu on phones).
  * The menu opens as a departure-board card and closes on Esc, outside click or choosing a gate.
  */
 export function Nav() {
   const [open, setOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const deck = useRef<HTMLDivElement>(null);
   const button = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    const onScroll = () => {
+      const next = window.scrollY > 120;
+      setScrolled(next);
+      if (!next && window.innerWidth > 900) setOpen(false);
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   useEffect(() => {
     if (!open) return;
@@ -51,14 +118,21 @@ export function Nav() {
               src="/brand/logo-on-light.svg"
               alt="Flyndev"
               className={s.logo}
-              width={156}
-              height={15}
+              width={230}
+              height={22}
             />
           </a>
         </div>
       </header>
 
-      <div ref={deck} className={s.deck}>
+      <div ref={deck} className={`${s.deck} ${scrolled ? s.deckScrolled : ""}`}>
+        <nav aria-label="Main" className={s.deckLinks}>
+          {LINKS.map((l) => (
+            <a key={l.href} href={l.href} className="cursor-target">
+              {l.name}
+            </a>
+          ))}
+        </nav>
         <button
           ref={button}
           type="button"
@@ -81,27 +155,12 @@ export function Nav() {
           data-cursor-label="Contact"
         >
           <span>Radio us</span>
-          <span className={s.btnDot}>
-            <svg
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="#fff"
-              strokeWidth="2.2"
-              strokeLinecap="round"
-              aria-hidden="true"
-            >
-              <path d="M4 12a8 8 0 0 1 8-8" />
-              <path d="M8 12a4 4 0 0 1 4-4" />
-              <circle cx="12" cy="12" r="1.6" fill="#fff" />
-            </svg>
-          </span>
+          <RadarIcon />
         </a>
 
         <nav
           id="flight-menu"
-          aria-label="Main"
+          aria-label="All sections"
           className={`${s.board} ${open ? s.boardOpen : ""}`}
           hidden={!open}
         >

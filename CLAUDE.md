@@ -62,8 +62,10 @@ Next.js (App Router, static export) + TypeScript + CSS Modules. Three.js for the
   Bayer pass in `Globe.tsx`), clean render shows around the cursor, click = ripple. Background is React Bits
   **Galaxy** in light mode (ink stars). Vendor files live in `components/vendor/` (lint-ignored, `.d.ts` types).
 - three.js lights divide by π: the globe's ambient/directional intensities look high on purpose.
-- Navigation: the logo scrolls away; a fixed "flight deck" (menu button + Radio us) stays top-right on every
-  screen size. The menu is a departure-board card (`Nav.tsx`). No inline nav links, even on desktop.
+- Navigation: the logo scrolls away; a fixed "flight deck" stays top-right. At the top of the page (desktop)
+  it shows the links + Radio us; after 120px of scroll the links fold into the menu button. Phones always
+  show the menu button. The menu is a departure-board card (`Nav.tsx`). "Radio us" has an animated radar icon.
+- Layout width: `--wrap` 1680px with fluid `--pad`, so big screens don't get a wide empty gutter.
 - Smooth scrolling: Lenis (`SmoothScroll.tsx`), off with reduced motion; anchors handled by Lenis.
 - "runway" TechText layer covers the whole first screen (portal on `body`, window events), so letters can be
   dragged anywhere; the real word hands over only after the effect's first frame (`onReady`).

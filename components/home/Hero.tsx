@@ -16,10 +16,10 @@ export function Hero() {
           transparent
           intro={false}
           starColors={["#a8a29e", "#c9c3ba", "#f4511e"]}
-          density={0.55}
-          layers={3}
+          density={0.8}
+          layers={4}
           glowIntensity={0.18}
-          starSize={0.7}
+          starSize={0.8}
           flareIntensity={0.25}
           twinkleIntensity={0.25}
           starSpeed={0.2}
@@ -27,7 +27,7 @@ export function Hero() {
           repulsionStrength={2}
           mouseRepulsion
           clickWarp={false}
-          opacity={0.45}
+          opacity={0.6}
           focal={[0.72, 0.45]}
         />
       </div>

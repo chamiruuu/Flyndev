@@ -27,7 +27,7 @@ export function Flights() {
             </p>
           </div>
           <a
-            href="#flights"
+            href="/flights"
             className={`${s.allFlights} cursor-target`}
             aria-label="See all flights"
           >
@@ -110,8 +110,8 @@ export function Flights() {
                   {[
                     ["Service", f.type],
                     ["Status", f.status],
-                    ["Industry", "[Industry]"],
-                    ["Landed", "[Month 2026]"],
+                    ["Industry", f.industry],
+                    [f.status === "Landed" ? "Landed" : "Lands", f.landed],
                   ].map(([k, v]) => (
                     <div key={k} className={s.fact}>
                       <dt className={s.fieldLabel}>{k}</dt>
@@ -134,7 +134,7 @@ export function Flights() {
                 <div className={s.perf} aria-hidden="true" />
                 <div className={s.ticketFoot}>
                   <p>{f.summary}</p>
-                  <a href="#flights" className={`${s.btnDark} cursor-target`}>
+                  <a href={`/flights/${f.slug}`} className={`${s.btnDark} cursor-target`}>
                     <span>View flight log</span>
                     <span className={s.btnDot}>
                       <ArrowUpRight color="#fff" />

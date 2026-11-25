@@ -2,7 +2,7 @@ import { site } from "@/lib/site";
 import { PLANE_PATH } from "./icons";
 import s from "./home.module.css";
 
-export function Footer() {
+export function Footer({ base = "" }: { base?: string }) {
   const year = new Date().getFullYear();
   return (
     <footer className={s.footer}>
@@ -50,13 +50,14 @@ export function Footer() {
           </div>
           <nav aria-label="Footer" className={s.footCol}>
             <span className={s.fieldLabel}>Terminal</span>
-            <a href="#about">About</a>
-            <a href="#route">Flight path</a>
-            <a href="#flights">Flights</a>
-            <a href="#hangar">Hangar</a>
+            <a href={`${base}#about`}>About</a>
+            <a href={`${base}#route`}>Flight path</a>
+            <a href={`${base}#flights`}>Flights</a>
+            <a href={`${base}#hangar`}>Hangar</a>
           </nav>
           <div className={s.footCol}>
             <span className={s.fieldLabel}>Frequency</span>
+            <a href="/radio">File a flight plan</a>
             <a href={`mailto:${site.email}`}>Email us</a>
             <a
               href={`https://www.instagram.com/${site.instagram}`}
@@ -80,6 +81,10 @@ export function Footer() {
         </div>
         <div className={s.footBar}>
           <span>© {year} FLYNDEV · ALL RIGHTS RESERVED</span>
+          <span className={s.footLegal}>
+            <a href="/privacy">Privacy</a>
+            <a href="/terms">Terms</a>
+          </span>
           <span>ALL SYSTEMS GO</span>
         </div>
       </div>

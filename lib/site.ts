@@ -2,6 +2,8 @@
  * Every editable value for the home page lives here.
  * Anything in [brackets] is a placeholder waiting for real content.
  */
+import { flights } from "./flights";
+
 export const site = {
   name: "Flyndev",
   domain: "flyndev.com",
@@ -73,44 +75,7 @@ export const site = {
   ],
 
   // Selected work. Placeholders until real projects are ready.
-  flights: [
-    {
-      code: "FD-104",
-      client: "[Client name]",
-      to: "[XXX]",
-      type: "Website",
-      status: "Landed",
-      summary: "[One line: what they needed and what changed after launch.]",
-      tint: "#EFE7DE",
-    },
-    {
-      code: "FD-109",
-      client: "[Client name]",
-      to: "[XXX]",
-      type: "Booking system",
-      status: "Landed",
-      summary: "[One line: the problem the booking system solved.]",
-      tint: "#E2E8EF",
-    },
-    {
-      code: "FD-112",
-      client: "[Client name]",
-      to: "[XXX]",
-      type: "Automation",
-      status: "Landed",
-      summary: "[One line: hours saved, or what now runs by itself.]",
-      tint: "#E3ECE5",
-    },
-    {
-      code: "FD-118",
-      client: "[Client name]",
-      to: "[XXX]",
-      type: "Online store",
-      status: "In flight",
-      summary: "[One line: what is being built and when it lands.]",
-      tint: "#ECE7F2",
-    },
-  ],
+  flights, // full case studies live in lib/flights.ts
 
   hangar: {
     intro:

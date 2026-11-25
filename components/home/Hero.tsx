@@ -34,7 +34,7 @@ export function Hero() {
               className={`${s.heroCtas} ${s.heroIn}`}
               style={{ ["--rv" as string]: "0.24s" }}
             >
-              <a href="#radio" className={`${s.btnDark} cursor-target`}>
+              <a href="/radio" className={`${s.btnDark} cursor-target`}>
                 <span>Start your flight</span>
                 <span className={s.btnDot}>
                   <Arrow />

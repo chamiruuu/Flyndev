@@ -17,7 +17,7 @@ const ROUTES = [
   { gate: "B2", href: "#hangar", name: "Hangar", status: "On time" },
   { gate: "C1", href: "#why", name: "Why Flyndev", status: "On time" },
   { gate: "C2", href: "#stories", name: "Passenger stories", status: "On time" },
-  { gate: "R", href: "#radio", name: "Radio the tower", status: "Boarding" },
+  { gate: "R", href: "/radio", name: "Radio the tower", status: "Boarding" },
 ];
 
 /** The orange beacon in "Radio us": a small radar with a turning sweep and two pings. */
@@ -72,7 +72,9 @@ export function RadarIcon() {
  * shows the main links; once you scroll they fold into a menu button (always the menu on phones).
  * The menu opens as a departure-board card and closes on Esc, outside click or choosing a gate.
  */
-export function Nav() {
+export function Nav({ base = "" }: { base?: string }) {
+  /** On other pages the section links point back to the home page ("/#about"). */
+  const to = (href: string) => (href.startsWith("#") ? base + href : href);
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const deck = useRef<HTMLDivElement>(null);
@@ -112,7 +114,11 @@ export function Nav() {
     <>
       <header className={s.nav}>
         <div className={`${s.wrap} ${s.navInner}`}>
-          <a href="#top" aria-label="Flyndev home" className="cursor-target">
+          <a
+            href={base ? "/" : "#top"}
+            aria-label="Flyndev home"
+            className="cursor-target"
+          >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/brand/logo-on-light.svg"
@@ -128,7 +134,7 @@ export function Nav() {
       <div ref={deck} className={`${s.deck} ${scrolled ? s.deckScrolled : ""}`}>
         <nav aria-label="Main" className={s.deckLinks}>
           {LINKS.map((l) => (
-            <a key={l.href} href={l.href} className="cursor-target">
+            <a key={l.href} href={to(l.href)} className="cursor-target">
               {l.name}
             </a>
           ))}
@@ -150,7 +156,7 @@ export function Nav() {
           <span className={s.menuLabel}>{open ? "Close" : "Menu"}</span>
         </button>
         <a
-          href="#radio"
+          href="/radio"
           className={`${s.navCta} cursor-target`}
           data-cursor-label="Contact"
         >
@@ -171,7 +177,11 @@ export function Nav() {
           <ul className={s.boardList}>
             {ROUTES.map((r, i) => (
               <li key={r.href} style={{ ["--i" as string]: i }}>
-                <a href={r.href} className="cursor-target" onClick={() => setOpen(false)}>
+                <a
+                  href={to(r.href)}
+                  className="cursor-target"
+                  onClick={() => setOpen(false)}
+                >
                   <span className={s.boardGate}>{r.gate}</span>
                   <span className={s.boardName}>{r.name}</span>
                   <span

@@ -44,9 +44,9 @@ export function Radio() {
       </p>
       <div className={`${s.radioCtas} rv`}>
         <a
-          href={`mailto:${site.email}`}
+          href="/radio"
           className={`${s.btnAccent} cursor-target`}
-          data-cursor-label="Email us"
+          data-cursor-label="Flight plan"
         >
           <span>Radio the tower</span>
           <span className={s.btnDot}>

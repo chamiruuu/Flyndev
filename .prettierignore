@@ -4,3 +4,4 @@ out
 package-lock.json
 public
 components/vendor
+public/hero-worker.js

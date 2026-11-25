@@ -1,8 +1,6 @@
 import { site } from "@/lib/site";
 import { Arrow, Plane } from "./icons";
-import Galaxy from "@/components/vendor/Galaxy";
-import { AfterLoad } from "./AfterLoad";
-import { Globe } from "./Globe";
+import { HeroCanvas } from "./HeroCanvas";
 import { HeroWord } from "./HeroWord";
 import { VisitorLine } from "./VisitorLine";
 import s from "./home.module.css";
@@ -11,33 +9,7 @@ export function Hero() {
   const ticker = [...site.ticker, ...site.ticker];
   return (
     <section id="top" className={s.hero}>
-      <div className={s.heroSky} aria-hidden="true">
-        <AfterLoad>
-          <Galaxy
-            className={s.skyFade}
-            lightMode
-            transparent
-            intro={false}
-            starColors={["#a8a29e", "#c9c3ba", "#f4511e"]}
-            density={0.8}
-            layers={4}
-            glowIntensity={0.18}
-            starSize={0.8}
-            flareIntensity={0.25}
-            twinkleIntensity={0.25}
-            starSpeed={0.2}
-            rotationSpeed={0.02}
-            repulsionStrength={2}
-            mouseRepulsion
-            clickWarp={false}
-            opacity={0.6}
-            focal={[0.72, 0.45]}
-            dpr={1}
-            maxFps={30}
-          />
-        </AfterLoad>
-      </div>
-      <Globe className={s.heroGlobe} />
+      <HeroCanvas />
       <div className={s.wrap}>
         <div className={s.heroGrid}>
           <div className={s.heroText}>

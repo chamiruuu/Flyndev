@@ -10,6 +10,6 @@ export default defineConfig([
     "out/**",
     "next-env.d.ts",
     "scripts/**",
-    "components/vendor/**",
+    "components/vendor/**", "public/hero-worker.js",
   ]),
 ]);

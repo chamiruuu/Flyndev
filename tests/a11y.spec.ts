@@ -19,11 +19,6 @@ for (const path of routes) {
     })
       .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
       .exclude("canvas")
-      // KNOWN, waiting on the owner: white text on the brand orange is 3.5:1 (AA needs 4.5:1).
-      // Options are in the README ("Accessibility"). Remove these lines once decided.
-      .exclude('[class*="btnAccent"]')
-      .exclude('[class*="badge"]')
-      .exclude('[class*="wpCurrent"] [class*="wpNum"]')
       .analyze();
     const summary = result.violations.map(
       (v) => `${v.id}: ${v.nodes.length} × ${v.help}`,

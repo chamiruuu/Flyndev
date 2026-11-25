@@ -111,7 +111,7 @@
 }
 
 .btnAccent {
-  background: var(--accent);
+  background: var(--accent-fill);
   color: #fff;
 }
 
@@ -1259,8 +1259,8 @@
 }
 
 .wpCurrent .wpNum {
-  background: var(--accent);
-  border-color: var(--accent);
+  background: var(--accent-fill);
+  border-color: var(--accent-fill);
   color: #fff;
   box-shadow: 0 0 0 8px rgb(244 81 30 / 0.16);
 }
@@ -1760,7 +1760,7 @@
   width: 26px;
   height: 26px;
   border-radius: 999px;
-  background: var(--accent);
+  background: var(--accent-fill);
   color: #fff;
   font-family: var(--font-mono);
   font-size: 10.5px;

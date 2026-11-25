@@ -85,13 +85,11 @@ or the resting pose, edit and run `node scripts/generate-globe-data.mjs` (about 
 - Vercel Speed Insights reports real-visitor speed once it is switched on in the Vercel project
   (**Speed Insights** tab → Enable). It is anonymous and sets no cookies.
 
-### Open accessibility question
+### Orange behind white text
 
-White text on the brand orange (`#F4511E`) is 3.5:1; WCAG AA asks 4.5:1 for normal-size text. It
-affects the orange buttons, the Hangar badges and the current waypoint number. The axe test skips
-those elements until a choice is made (see `tests/a11y.spec.ts`).
-Colours and fonts are the tokens at the top of `app/globals.css`; section styles are in
-`components/home/home.module.css`.
+White text on the brand orange (`#F4511E`) is only 3.5:1, below WCAG AA. Wherever white text sits on
+orange (orange buttons, Hangar badges, the current waypoint number) the slightly deeper
+`--accent-fill` (`#D93C0B`, 4.56:1) is used instead. Everywhere else the brand orange is unchanged.
 
 ## Brand assets
 

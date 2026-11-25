@@ -115,17 +115,18 @@ Next.js (App Router, static export) + TypeScript + CSS Modules. Three.js for the
 
 ## Brand
 
+- White text never sits on `--accent` (3.5:1). Use `--accent-fill` `#d93c0b` (4.56:1) for orange buttons,
+  badges and the current waypoint number (owner approved). The axe test has no exemptions; keep it that way.
 - Logo is an SVG (`public/brand/logo.svg`). Brand colours: black and orange **#F4511E** (`--accent`). On the dark
   page the black letters are drawn cream; the orange wing stays. Original is in `assets/brand-src/`.
 
 ## Open items
 
-- White text on brand orange is 3.5:1 (AA needs 4.5:1): orange buttons, Hangar badges, current waypoint number.
-  Owner to choose (darker orange for buttons, ink text on orange, or bigger/bolder text). Axe test skips them.
 - Real case studies in `lib/flights.ts`; legal placeholders and confirmation; enable Speed Insights in Vercel.
 
 - Final contact email (currently the Gmail address in `lib/site.ts`).
 - Instagram profile `sameAs` entry in the structured data: confirm the account is live.
 - Placeholders in `lib/site.ts`: projects, client voice notes/quotes, reply time ("[one working day]").
 - Contact form and flight logs exist now; they follow the home page style but were not mocked on the
-  Claude Design canvas first. Owner to review them on the preview link.
+  Claude Design canvas first. Owner reviewed and approved them on the preview; the optional budget question
+  on the form stays.

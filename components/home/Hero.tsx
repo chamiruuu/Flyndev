@@ -1,6 +1,8 @@
 import { site } from "@/lib/site";
 import { Arrow, Plane } from "./icons";
+import Galaxy from "@/components/vendor/Galaxy";
 import { Globe } from "./Globe";
+import { HeroWord } from "./HeroWord";
 import { VisitorLine } from "./VisitorLine";
 import s from "./home.module.css";
 
@@ -8,13 +10,35 @@ export function Hero() {
   const ticker = [...site.ticker, ...site.ticker];
   return (
     <section id="top" className={s.hero}>
+      <div className={s.heroSky} aria-hidden="true">
+        <Galaxy
+          lightMode
+          transparent
+          starColors={["#141414", "#141414", "#57534e", "#f4511e"]}
+          density={0.9}
+          glowIntensity={0.35}
+          starSize={1.1}
+          flareIntensity={0.8}
+          twinkleIntensity={0.4}
+          starSpeed={0.35}
+          rotationSpeed={0.04}
+          repulsionStrength={2.5}
+          mouseRepulsion
+          clickWarp
+          opacity={0.75}
+          focal={[0.72, 0.45]}
+        />
+      </div>
       <Globe className={s.heroGlobe} />
       <div className={s.wrap}>
         <div className={s.heroGrid}>
           <div className={s.heroText}>
             <p className={`${s.kicker} rv`}>{site.hero.kicker}</p>
             <h1 className={`${s.h1} rv`} style={{ ["--rv" as string]: "0.08s" }}>
-              The <span className={`${s.serif} ${s.orange}`}>runway</span>
+              The{" "}
+              <span className={`${s.serif} ${s.orange}`}>
+                <HeroWord text="runway" />
+              </span>
               <br />
               for growing
               <br />

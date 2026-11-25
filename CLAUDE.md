@@ -56,6 +56,12 @@ Next.js (App Router, static export) + TypeScript + CSS Modules. Three.js for the
 - Cursor on mouse devices: React Bits `TargetCursor` (`components/TargetCursor.tsx`). Mark clickable things
   with the `cursor-target` class (and `data-cursor-label`).
 - Globe pauses off-screen and holds still with reduced motion.
+- Hero effects (all light theme): "runway" uses React Bits **TechText** (`components/vendor/TechText.jsx`,
+  adapted with `fontStyle` + `layout` so it sits exactly on the real DOM word; the DOM word stays for
+  readers/no-JS). The globe is rendered off-screen and **dithered** in ink on paper (DitherVeil-style
+  Bayer pass in `Globe.tsx`), clean render shows around the cursor, click = ripple. Background is React Bits
+  **Galaxy** in light mode (ink stars). Vendor files live in `components/vendor/` (lint-ignored, `.d.ts` types).
+- three.js lights divide by π: the globe's ambient/directional intensities look high on purpose.
 
 ## Lessons that cost time
 

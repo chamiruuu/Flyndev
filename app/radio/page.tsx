@@ -12,6 +12,12 @@ export const metadata: Metadata = {
   description:
     "Tell Flyndev where you want your business to go. File a short flight plan and we reply with a clear next step.",
   alternates: { canonical: "/radio" },
+  openGraph: {
+    title: "Radio Flyndev · Start a project",
+    description: "File a short flight plan and we reply with a clear next step.",
+    url: "/radio",
+    images: ["/opengraph-image.png"],
+  },
 };
 
 export default function RadioPage() {

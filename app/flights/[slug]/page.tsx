@@ -23,6 +23,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title: `${f.code} · ${f.client} · Flight log`,
     description: f.summary,
     alternates: { canonical: `/flights/${f.slug}` },
+    openGraph: {
+      title: `${f.code} · ${f.client} · Flyndev flight log`,
+      description: f.summary,
+      url: `/flights/${f.slug}`,
+    },
+    twitter: {
+      title: `${f.code} · ${f.client} · Flyndev flight log`,
+      description: f.summary,
+    },
   };
 }
 

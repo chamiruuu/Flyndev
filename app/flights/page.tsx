@@ -12,6 +12,13 @@ export const metadata: Metadata = {
   description:
     "Websites, systems and automation Flyndev has flown for growing businesses, from first brief to launch.",
   alternates: { canonical: "/flights" },
+  openGraph: {
+    title: "Flights · Flyndev",
+    description:
+      "Websites, systems and automation Flyndev has flown for growing businesses.",
+    url: "/flights",
+    images: ["/opengraph-image.png"],
+  },
 };
 
 export default function FlightsPage() {
